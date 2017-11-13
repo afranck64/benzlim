@@ -1,0 +1,9 @@
+resources/
+out/
+.vscode/
+*.pyc
+*.sqlite3
+*.db
+*.db3
+*.sqlite3
+*__pythoncache__*

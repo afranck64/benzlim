@@ -6,11 +6,9 @@ import datetime
 import dateutil.parser
 import codecs
 
-from b_exceptions import (PriceNotFoundException, StationNotFoundException)
+from .b_exceptions import (PriceNotFoundException, StationNotFoundException)
 
 SRC_DIR = os.path.abspath(os.path.join(os.path.split(__file__)[0], '.'))
-
-print SRC_DIR
 
 PATH_EINGABEDATEN = os.path.abspath("../InformatiCup2018/Eingabedaten")
 PATH_AUSGABEDATEN = os.path.abspath("../InformatiCup2018/Ausgabedaten")
@@ -48,7 +46,7 @@ def str2zipcode(value):
     try:
         return int(value)
     except ValueError as err:
-        print err
+        print (err)
         return 0
 
 def str2unicode(value):
@@ -135,7 +133,7 @@ def get_station_prices(station_id=TEST_STATION_ID):
             for row in reader:
                 yield datetime_parse(row[0]), int(row[1])
     except IOError as err:
-        print err.message
+        print (err.message)
         yield DATE_BEGIN, -1
         yield DATE_END, -1
 
@@ -180,6 +178,12 @@ def get_station_extended_infos(station_id=TEST_STATION_ID):
     avg_daily_updates = int(round(n*1.0/delta_date.days)) if delta_date.days else 0
     return avg_daily_updates, avg_update_interval_in_secs, avg_price, stdev_price
 
+def get_route_params(filename):
+    """return <capacity>, [<timestamp>, <station_id>]"""
+    with codecs.open(filename, 'r') as input_f:
+        capacity = int(input_f.readline())
+        reader = csv.reader(input_f, dialect=None, delimiter=';')
+        return capacity, tuple(row for row in reader)
 
 if __name__ == "__main__":
     #export_extended_stations_infos()

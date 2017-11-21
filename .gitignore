@@ -6,4 +6,4 @@ out/
 *.db
 *.db3
 *.sqlite3
-*__pythoncache__*
+**__pycache__

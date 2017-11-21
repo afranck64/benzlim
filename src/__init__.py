@@ -27,7 +27,14 @@ def help():
 
 def main():
     printf ("Benzlim")
+    """
     if len(sys.argv)<2:
         help()
     else:
-        process(sys.argv[1], end_timestamp="2015-08-04")
+        process(sys.argv[1], end_timestamp="2015-07-04")
+    """
+    for i in xrange(1, 20):
+        try:
+            printf(" Station %s => avg, min, max %s " % (i, predict.test_station(i)))
+        except Exception as err:
+            print i, err.message

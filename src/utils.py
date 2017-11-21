@@ -77,12 +77,18 @@ def get_stations_infos(filename=FILENAME_TANKSTELLEN, max_stations=MAX_STATIONS)
         [str2latitute, 0],
         [str2longitude, 0]
     ]
-    with codecs.open(filename, 'r') as csvfile:
-        reader = csv.reader(csvfile, dialect=None, delimiter=';')
-        for cpt, row in enumerate(reader):
-            yield [type_infos[index][0](value.strip() or type_infos[index][1]) for index, value in enumerate(row)]
-            if (cpt+1 >= max_stations):
-                return
+    if max_stations > 0:
+        with codecs.open(filename, 'r') as csvfile:
+            reader = csv.reader(csvfile, dialect=None, delimiter=';')
+            for cpt, row in enumerate(reader):
+                yield [type_infos[index][0](value.strip() or type_infos[index][1]) for index, value in enumerate(row)]
+                if (cpt+1 >= max_stations):
+                    return
+    else:
+        with codecs.open(filename, 'r') as csvfile:
+            reader = csv.reader(csvfile, dialect=None, delimiter=';')
+            for cpt, row in enumerate(reader):
+                yield [type_infos[index][0](value.strip() or type_infos[index][1]) for index, value in enumerate(row)]
 
 def export_extended_stations_infos(filename=FILENAME_TANKSTELLEN, output_filename=None):
     """export stations informations, adding the fields 'avg_updates_per_day' 'avg_update_interval_in_secs'"""

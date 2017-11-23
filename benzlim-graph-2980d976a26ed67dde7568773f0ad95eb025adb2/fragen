@@ -1,0 +1,17 @@
+was heißt EPS in Graph?
+heißt gasinfo wieviel bei entsprechender id getankt wird?
+wieso wird überall getankt?
+sollten wir ein maximum an tankstopps einführen?
+sollten wir eine toleranz-variable einführen, sodass bei maximaler strecke,
+    die gefahren werden kann diese variable auf capacity addiert wird?
+
+
+
+ich habe bei readroute eingebaut, dass die capacity ausgelesen wird und das datetime gecheckt wird
+bei main, dass nur Nodes, die nich None sind, eingefügt werden
+    was heißt das, wenn Nodes nicht eingefügt werden können?
+    sollten wir vielleicht ausgeben, wenn das start- oder zielknoten sind und es sonst ignorieren?
+und die nodes werden jetzt nach datetime-objekten sortiert, davor waren start- und zielknoten bei jedem aufruf andere
+
+
+lass uns mal bitte zusammen die find_prevs, find_nexts und drive_to_nexts methoden angucken

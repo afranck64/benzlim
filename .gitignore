@@ -1,5 +1,6 @@
 resources/
 out/
+env/
 .vscode/
 .idea/
 *.pyc

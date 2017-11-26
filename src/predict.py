@@ -72,7 +72,7 @@ def get_station_dataframe(station_id, dir_prices, datetime_parser=None):
     """return a DataFrame containing timestamps and prices of the station <station_id>"""
     datetime_parser = datetime_parser or dateutil.parser.parse
     station_fic = utils.get_station_filename(station_id, dir_prices)
-    ts = pd.read_csv(station_fic, index_col='timestamp', delimiter=";", date_parser=datetime_parser, header=None, names=["timestamp", "price"], parse_dates='timestamp')
+    ts = pd.read_csv(station_fic, index_col='timestamp', delimiter=";", header=None, names=["timestamp", "price"], parse_dates=True)
     return ts
 
 def get_freq_avg(ts, freq="30T", fill_method='bfill', fill_method2=None):

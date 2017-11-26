@@ -9,13 +9,17 @@ import codecs
 from .b_exceptions import (PriceNotFoundException, StationNotFoundException)
 
 SRC_DIR = os.path.abspath(os.path.join(os.path.split(__file__)[0], '.'))
-
+"""
 PATH_EINGABEDATEN = os.path.abspath("../InformatiCup2018/Eingabedaten")
 PATH_AUSGABEDATEN = os.path.abspath("../InformatiCup2018/Ausgabedaten")
-PATH_OUTPUT = os.path.abspath("../out")
 PATH_BENZINPREISE = "../InformatiCup2018/Eingabedaten/Benzinpreise"
 FILENAME_TANKSTELLEN = "../InformatiCup2018/Eingabedaten/Tankstellen.csv"
 TEST_STATION_ID = 1
+"""
+
+
+PATH_OUTPUT = os.path.join(SRC_DIR, "../out")
+
 DATE_BEGIN = datetime.datetime(2013, 6, 8)
 DATE_END = datetime.datetime(2017, 9, 21)
 
@@ -52,7 +56,7 @@ def str2zipcode(value):
 def str2unicode(value):
     return value.decode('utf8')
 
-def get_stations_infos(filename=FILENAME_TANKSTELLEN, max_stations=MAX_STATIONS):
+def get_stations_infos(filename, max_stations=MAX_STATIONS):
     """return station informations:
     id: int => Station id
     name: str => Station name
@@ -90,38 +94,38 @@ def get_stations_infos(filename=FILENAME_TANKSTELLEN, max_stations=MAX_STATIONS)
             for cpt, row in enumerate(reader):
                 yield [type_infos[index][0](value.strip() or type_infos[index][1]) for index, value in enumerate(row)]
 
-def export_extended_stations_infos(filename=FILENAME_TANKSTELLEN, output_filename=None):
+def export_extended_stations_infos(filename, dir_prices, output_filename=None):
     """export stations informations, adding the fields 'avg_updates_per_day' 'avg_update_interval_in_secs'"""
     output_filename = output_filename or os.path.join(PATH_OUTPUT, 'Tankstellen_extended.csv')
     csvfile = open(output_filename, 'wb', 'utf8')
     writer = csv.writer(csvfile, delimiter=';')
     for row in get_stations_infos(filename):
         station_id = row[0]
-        infos = get_station_extended_infos(station_id)
+        infos = get_station_extended_infos(station_id, dir_prices)
         extended_row = list(row)
         extended_row.extend(infos)
         writer.writerow(extended_row)
     csvfile.close()
 
-def get_extended_stations_infos(filename=FILENAME_TANKSTELLEN):
+def get_extended_stations_infos(filename, dir_prices):
     for row in get_stations_infos(filename):
         station_id = row[0]
-        infos = get_station_extended_infos(station_id)
+        infos = get_station_extended_infos(station_id, dir_prices)
         extended_row = list(row)
         extended_row.extend(infos)
         yield extended_row
 
 
-def get_station_filename(station_id):
+def get_station_filename(station_id, dir_prices):
     """return the filename containing prices for the station <station_id>"""
-    return os.path.join(PATH_BENZINPREISE, str(station_id) + ".csv")
+    return os.path.join(dir_prices, str(station_id) + ".csv")
 
 def get_file_line_count(filename):
     """return the number of lines contained in the file <filename>"""
     lines = 0
-    with codecs.open(filename, 'rb', 'utf8') as f:
+    with codecs.open(filename, 'rb', 'utf8') as input_f:
         buf_size = 1024 * 1024
-        read_f = f.read # loop optimization
+        read_f = input_f.read # loop optimization
         buf = read_f(buf_size)
         while buf:
             lines += buf.count('\n')
@@ -129,9 +133,9 @@ def get_file_line_count(filename):
     return lines
 
 
-def get_station_prices(station_id=TEST_STATION_ID):
-    """return the datetime and prices for the station <station_id>"""
-    filename = os.path.join(PATH_BENZINPREISE, str(station_id) + ".csv")
+def get_station_prices(station_id, dir_prices):
+    """return [<timestamp>, <price>] for the given station"""
+    filename = get_station_filename(station_id, dir_prices)
     datetime_parse = dateutil.parser.parse
     try:
         with open(filename, 'rb') as csvfile:
@@ -143,7 +147,8 @@ def get_station_prices(station_id=TEST_STATION_ID):
         yield DATE_BEGIN, -1
         yield DATE_END, -1
 
-def get_all_prices(dir_prices=PATH_BENZINPREISE, delimiter=";"):
+def get_all_prices(dir_prices, delimiter=";"):
+    """return all station infos"""
     all_files = glob.glob(os.path.join(dir_prices, '*.csv'))
     for filename_path in all_files:
         _, filename = os.path.split(filename_path)
@@ -155,10 +160,9 @@ def get_all_prices(dir_prices=PATH_BENZINPREISE, delimiter=";"):
                 yield station_id, timestamp, price
                 line = f_prices.readline()
 
-def get_station_extended_infos(station_id=TEST_STATION_ID):
+def get_station_extended_infos(station_id, dir_prices):
     """return the average updates for the station <station_id>,
     <avg_daily_updates>, <avg_update_interval_in_secs>, <avg_price>, <stdev_price>"""
-    
     start_date = None
     last_processed_date = None
     n = 0
@@ -166,7 +170,7 @@ def get_station_extended_infos(station_id=TEST_STATION_ID):
     avg_update_time = now - now
     sum_price = 0
     sum_price_sqr = 0
-    for processed_date, price in get_station_prices(station_id):
+    for processed_date, price in get_station_prices(station_id, dir_prices):
         avg_update_time += (processed_date) - (last_processed_date or processed_date)
         start_date = start_date or processed_date
         last_processed_date = processed_date
@@ -184,12 +188,25 @@ def get_station_extended_infos(station_id=TEST_STATION_ID):
     avg_daily_updates = int(round(n*1.0/delta_date.days)) if delta_date.days else 0
     return avg_daily_updates, avg_update_interval_in_secs, avg_price, stdev_price
 
+def get_predicted_prices(filename):
+    """return [<end_timestamp>, <prediction_timestamp>, <station_id>, <pred_price>]"""
+    with codecs.open(filename, 'r') as input_f:
+        reader = csv.reader(input_f, dialect=None, delimiter=';')
+        return tuple((row[0], row[1], int(row[2]), int(row[3])) for row in reader)
+
+def get_prediction_params(filename):
+    """return [<end_timestamp>, <prediction_timestamp>, <station_id>]"""
+    with codecs.open(filename, 'r') as input_f:
+        reader = csv.reader(input_f, dialect=None, delimiter=';')
+        return tuple((row[0], row[1], row[2]) for row in reader)
+
+
 def get_route_params(filename):
     """return <capacity>, [<timestamp>, <station_id>]"""
     with codecs.open(filename, 'r') as input_f:
         capacity = int(input_f.readline())
         reader = csv.reader(input_f, dialect=None, delimiter=';')
-        return capacity, tuple(row for row in reader)
+        return capacity, tuple((row[0], row[1]) for row in reader)
 
 if __name__ == "__main__":
     #export_extended_stations_infos()

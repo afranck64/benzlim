@@ -1,3 +1,8 @@
+import os
+import cPickle as pickle
+import marshal
+import shelve
+
 import pandas as pd
 import numpy as np
 from scipy import interpolate
@@ -14,7 +19,7 @@ TEST_END_RANGE_TIMESTAMP = "2015-08-31"
 CACHE_PREDICTORS = {}
 
 class Predictor(object):
-    def __init__(self, full_predictor=None, year_predictor=None, month_predictor=None, week_predictor=None, day_predictor=None, hour_predictor=None, min_predictor=None):
+    def __init__(self, full_predictor=None, full_converter=None, year_predictor=None, month_predictor=None, week_predictor=None, day_predictor=None, hour_predictor=None, min_predictor=None):
         """
         full_predictor: <callable> return the complete prediction for a given timestamp
         year_predictor: <callable> return the corresponding yearly average price 
@@ -33,11 +38,14 @@ class Predictor(object):
         self.hour_predictor = hour_predictor
         self.min_predictor = min_predictor
         self.full_predictor = full_predictor
+        self.full_converter = full_converter
 
     def predict(self, dt):
         """Return the predicted price at the timestamp <dt>
         dt: <str|pd.Timestamp|np.datetime64|datetime> the timestamp"""
         if self.full_predictor is not None:
+            if self.full_converter is not None:
+                return self.full_predictor(self.full_converter(dt))
             return self.full_predictor(dt)
         res_price = 0
         dt = pd.Timestamp(dt)
@@ -60,10 +68,10 @@ class Predictor(object):
         return self.predict(dt)
 
 
-def get_station_dataframe(station_id=TEST_STATION_ID, datetime_parser=None):
+def get_station_dataframe(station_id, dir_prices, datetime_parser=None):
     """return a DataFrame containing timestamps and prices of the station <station_id>"""
     datetime_parser = datetime_parser or dateutil.parser.parse
-    station_fic = utils.get_station_filename(station_id)
+    station_fic = utils.get_station_filename(station_id, dir_prices)
     ts = pd.read_csv(station_fic, index_col='timestamp', delimiter=";", date_parser=datetime_parser, header=None, names=["timestamp", "price"], parse_dates='timestamp')
     return ts
 
@@ -91,7 +99,7 @@ def get_time(timestamp, field=None):
         return timestamp.year
     return -1
 
-def get_price_predictor(station_id=None, ts=None, end_train_timestamp=None, poly_deg=3):
+def get_price_predictor(station_id, dir_prices, ts=None, end_train_timestamp=None, poly_deg=3):
     """Generate a price predictor for gas station <station_id> of the timeserie <ts>,
     station_id: str, the id of the station
     ts: DataFrame|Serie, the price's timeserie of as gas station
@@ -102,11 +110,11 @@ def get_price_predictor(station_id=None, ts=None, end_train_timestamp=None, poly
     if station_id is submitted, the predictor is cached resp. recovered from the cache"""
     cache_key = None
     if station_id is not None:
-        cache_key = (station_id, end_train_timestamp, poly_deg)
+        cache_key = (station_id, end_train_timestamp, poly_deg, 1)
     if cache_key in CACHE_PREDICTORS:
         #TODO data gathered from cache
         return CACHE_PREDICTORS[cache_key]
-    ts = ts if ts is not None else get_station_dataframe(station_id)
+    ts = ts if ts is not None else get_station_dataframe(station_id, dir_prices)
     if end_train_timestamp is not None:
         ts = ts[:end_train_timestamp]
     NB_YEARS = 1*2
@@ -172,7 +180,7 @@ def get_price_predictor(station_id=None, ts=None, end_train_timestamp=None, poly
     return predictor
 
 
-def get_price_predictor_tmp(station_id=None, ts=None, end_train_timestamp=DEFAULT_END_TRAIN_TIMESTAMP, poly_deg=3):
+def get_price_predictor2(station_id, dir_prices, ts=None, end_train_timestamp=None, poly_deg=2):
     """Generate a price predictor for gas station <station_id> of the timeserie <ts>,
     station_id: str, the id of the station
     ts: DataFrame|Series, the price's timeserie of as gas station
@@ -183,31 +191,32 @@ def get_price_predictor_tmp(station_id=None, ts=None, end_train_timestamp=DEFAUL
     if station_id is submitted, the predictor is cached resp. recovered from the cache"""
     cache_key = None
     if station_id is not None:
-        cache_key = (station_id, end_train_timestamp, poly_deg)
+        cache_key = (station_id, end_train_timestamp, poly_deg, 2)
     if cache_key in CACHE_PREDICTORS:
         print "From cache"
         return CACHE_PREDICTORS[cache_key]
-    ts = ts if ts is not None else get_station_dataframe(station_id)
+    ts = ts if ts is not None else get_station_dataframe(station_id, dir_prices)
     if end_train_timestamp is not None:
         ts = ts[:pd.Timestamp(end_train_timestamp)]
     predictor_f = np.poly1d(np.polyfit(ts.index.values.astype(int).flat, ts.values.flat, poly_deg))
-    def predictor(timestamp):
-        timestamp = pd.Timestamp(timestamp)
-        return int(round(predictor_f(timestamp.to_datetime64().astype(int))))
+    predictor = lambda timestamp: int(round(predictor_f(pd.Timestamp(timestamp).to_datetime64().astype(int))))
     if cache_key:
         CACHE_PREDICTORS[cache_key] = predictor
-    return predictor
+    return predictor_datetime64(predictor_f)
+
+def predictor_datetime64(predictor_f):
+    return lambda timestamp: int(predictor_f(pd.Timestamp(timestamp).to_datetime64().astype(int)))
 
 
-def predict_price(station_id, timestamp, end_train_timestamp=None, debug=False):
-    if debug:
-        ts = get_station_dataframe(station_id)
-        predictor = get_price_predictor(station_id, ts, end_train_timestamp=end_train_timestamp)
-        res = int(round(predictor(pd.Timestamp(timestamp).to_datetime64().astype(int))))
-        return res, ts[timestamp.split()[0]].values[0], res-ts[timestamp.split()[0]].values[0], "#%s items" % len(ts)
+def predict_price(station_id, timestamp, end_train_timestamp, dir_prices):
+    if end_train_timestamp is not None:
+        if pd.Timestamp(timestamp) >= pd.Timestamp(end_train_timestamp):
+            predictor = get_price_predictor2(station_id, dir_prices, end_train_timestamp=end_train_timestamp)
+        else:
+            predictor =  get_price_predictor(station_id, dir_prices, end_train_timestamp=end_train_timestamp)
     else:
-        predictor = get_price_predictor(station_id, end_train_timestamp=end_train_timestamp)
-        return predictor(timestamp)
+        predictor = get_price_predictor(station_id, dir_prices, end_train_timestamp=end_train_timestamp)
+    return predictor(timestamp)
 
 def evaluate(ts, predictor, begin=TEST_BEGIN_RANGE_TIMESTAMP, end=TEST_END_RANGE_TIMESTAMP):
     orginal_values = ts[begin:end]
@@ -216,11 +225,24 @@ def evaluate(ts, predictor, begin=TEST_BEGIN_RANGE_TIMESTAMP, end=TEST_END_RANGE
     diff = abs(diff)
     return np.average(diff), np.min(diff), np.max(diff)
 
-def test_station(station_id):
-    ts = get_station_dataframe(station_id)
+def test_station(station_id, dir_prices):
+    ts = get_station_dataframe(station_id, dir_prices)
     predictor = get_price_predictor(station_id, ts, end_train_timestamp=DEFAULT_END_TRAIN_TIMESTAMP)
     return evaluate(ts, predictor)
 
+def timestamp2int8(timestamp):
+    return pd.Timestamp(timestamp).to_datetime64().astype(int)
+
+def save_predictor(station_id, dir_prices):
+    ts = get_station_dataframe(station_id, dir_prices)
+    predictor = get_price_predictor(station_id, ts)
+    instance_predictor = Predictor(full_predictor=predictor, full_converter=timestamp2int8)
+    print instance_predictor('2015-01-01')
+    PATH = "resources/predictors"
+    filename = os.path.join(PATH, str(station_id) + ".p")
+    with open(filename, "w") as out_f:
+        pickle.dump(instance_predictor, out_f)
+        
 if __name__ == "__main__":
     for i in [1,3,77]:
-        print (i, test_station(i))
+        print (i, test_station(i, utils.PATH_EINGABEDATEN))

@@ -1,0 +1,11 @@
+resources/
+out/
+.vscode/
+.idea/
+*.pyc
+*.sqlite3
+*.db
+*.db3
+*.sqlite3
+*.dump
+**__pycache__

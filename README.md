@@ -9,14 +9,14 @@
 ## Configuration
 
 - requirements:
-  - Python >= 2.6
+  - Python 2.7.x
   - pip
 
 - installation of required python packages:
     `pip install --user -r requirements.txt`   #May need root access
 
 ## Run
-   From the `InformatiCup` directory, run the command: `python benzlim -h` to get detailled
+   From the `InformatiCup` directory, run the command: `python benzlim -h` to get detailled help
 
    ### Predict: `python benzlim -p $prediction_file $DIR_InformatiCup2018`
 

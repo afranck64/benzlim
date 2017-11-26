@@ -7,6 +7,15 @@ from .compat import printf
 from . import utils
 from . import predict
 
+def create_file_dirs(filename):
+    ERROR_FILE_EXISTS = 17
+    try:
+        os.makedirs(os.path.split(filename)[0])
+    except OSError as err:
+        if err.args[0] != ERROR_FILE_EXISTS:
+            #TODO something happened
+            sys.exit(err.message)
+
 def process_task(args):
     result = predict.predict_price(*args)
     return result
@@ -29,16 +38,16 @@ def predict_prices_timestamps_x2_stations(timestamps_x2_stations, dir_prices, nb
 
 
 def process_predictions(filename, dir_prices, out_filename=None, nb_workers=None):
-    out_filename = out_filename or 'out/predictions.csv'
+    out_filename = out_filename or 'benzlim_out/predictions.csv'
     timestamps_x2_stations = utils.get_prediction_params(filename)
-
     res_infos = predict_prices_timestamps_x2_stations(timestamps_x2_stations, dir_prices, nb_workers)
+    create_file_dirs(out_filename)
     with open(out_filename, 'w') as output_f:
         output_f.writelines("%s;%s;%s;%s\n"%(row) for row in res_infos)
 
 
 def process_routing(filename, dir_prices, out_filename=None, gas_prices_file=None, nb_workers=None, auto_end_timestamp=True):
-    out_filename = out_filename or "out/predictions_route.csv"
+    out_filename = out_filename or "benzlim_out/predictions_route.csv"
     capacity, timestamps_stations = utils.get_route_params(filename)
 
     if gas_prices_file is None:
@@ -72,6 +81,7 @@ def process_routing(filename, dir_prices, out_filename=None, gas_prices_file=Non
 
     #res_infos: [<timestamp>, <station>, <pred_price>, <gas_quantity>
     res_infos = []
+    create_file_dirs(out_filename)
     with open(out_filename, 'w') as output_f:
         output_f.writelines("%s;%s;%s;%s\n"%(row) for row in res_infos)
 

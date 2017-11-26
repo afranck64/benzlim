@@ -16,4 +16,10 @@
     `pip install --user -r requirements.txt`   #May need root access
 
 ## Run
-   From the `InformatiCup` directory, run the command: `python benzlim $input_file`
+   From the `InformatiCup` directory, run the command: `python benzlim -h` to get detailled
+
+   ### Predict: `python benzlim -p $prediction_file $DIR_InformatiCup2018`
+
+   ### Routing with price prediction: `python benzlim -r $route_file $dir_informaticup2018`
+
+   ### Routing with predicted prices: `python benzlim -r -g $predicted_prices $route_file $dir_informaticup2018`

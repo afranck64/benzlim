@@ -21,8 +21,5 @@ if __name__ == '__main__':
     g.find_nexts()
     g.find_prevs()
     #print(g.nodes[1].next.id)
-    od=g.drive_to_next()
-    print("driven")
-
-
-    for a,b in od.iteritems(): print a,b,
+    info = g.drive_to_next()
+    print(info.items())

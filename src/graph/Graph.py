@@ -1,4 +1,4 @@
-import collections
+from collections import OrderedDict
 
 class Graph:
     start = None
@@ -24,7 +24,7 @@ class Graph:
         for n in self.nodes:
             cheapest = n
             for i in self.nodes[0:self.nodes.index(n)]:
-                if i.distance_to(n) < self.capacity and i < cheapest:
+                if self.gas_for_km(i.distance_to(n)) < self.capacity and i < cheapest:
                     cheapest = i
             n.prev = cheapest
             if n.prev == n:
@@ -35,8 +35,7 @@ class Graph:
         for n in self.nodes[0:len(self.nodes)-1]:
             cheapest = self.nodes[self.nodes.index(n)+1]
             for i in self.nodes[self.nodes.index(n)+2:len(self.nodes)]:
-                #print("new cheapest?")
-                if n.distance_to(i) < self.capacity and i < cheapest:
+                if self.gas_for_km(n.distance_to(i)) < self.capacity and i < cheapest:
                     cheapest = i
             n.next = cheapest
 
@@ -52,22 +51,22 @@ class Graph:
         for element in self.breakpoints:
             print(element.id)
         bp = self.breakpoints
-        gas_info = {}
+        gas_info = OrderedDict()
 
         while x != self.goal:
-            print(self.current_gas)
-            print(x.id)
+            print(x.id, self.current_gas)
             if bp and x != bp[0] and self.gas_for_km(x.distance_to(bp[0])) < self.capacity:
                 if self.current_gas >= self.gas_for_km(x.distance_to(bp[0])): #If there is enough gas left in tank, don't fill up
                     self.current_gas -= self.gas_for_km(x.distance_to(bp[0]))
                 else:
-                    gas_info[x.id] = self.gas_for_km(x.distance_to(bp[0])) - self.current_gas
-                    self.current_gas += gas_info[x.id] - self.gas_for_km(x.distance_to(bp[0]))
+                    amount = self.gas_for_km(x.distance_to(bp[0])) - self.current_gas
+                    gas_info[x.id] = [amount, x.price_for_gas(amount)]
+                    self.current_gas += gas_info[x.id][0] - self.gas_for_km(x.distance_to(bp[0]))
                 x = bp.pop(0)
             else:
-                if self.capacity - self.current_gas > 0:
-                    gas_info[x.id] = self.capacity - self.current_gas
+                amount = self.capacity - self.current_gas
+                if amount > 0:
+                    gas_info[x.id] = [amount, x.price_for_gas(amount)]
                 self.current_gas -= self.gas_for_km(x.distance_to(x.next))
                 x = x.next
-        od = collections.OrderedDict(sorted(gas_info.items()))
-        return od
+        return gas_info

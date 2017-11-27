@@ -48,16 +48,4 @@ def read_id(id):
 if __name__ == '__main__':
     readRoute("bb.csv")
     idList=[1,2,3,4,5,6,7,8,9] #??
-    #TODO:distance berechnet falsche werte?
     #TODO:bei auslese-funktionen muessen unguenstige faelle abgefangen werden
-
-def readID(gasStationID, pathIDs):
-    idReader= csv.reader(open(pathIDs))
-    for row in idReader:
-        #TODO:try catch except irgendwas
-        currentID= [list(map(int, x)) for x in row[0]]
-        if currentID[0][0]==gasStationID:
-            lat=float(row[7])
-            lon=float(row[8])
-            return lat,lon
-    return -1,-1

@@ -32,7 +32,8 @@ class Node:
                                                             (1 - cos((other.lon - self.lon) * p)) / 2
             return 12742 * asin(sqrt(a))  # 2*R*asin...
 
-
+    def price_for_gas(self, amount):
+        return amount * self.price
 
     def set_price(self, price):
         self.price = price;

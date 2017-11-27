@@ -1,3 +1,5 @@
+import collections
+
 class Graph:
     start = None
     goal = None
@@ -46,11 +48,15 @@ class Graph:
     '''
     def drive_to_next(self):
         x = self.start
+        self.breakpoints.sort(key=lambda bps: bps.datetime)
+        for element in self.breakpoints:
+            print(element.id)
         bp = self.breakpoints
         gas_info = {}
 
         while x != self.goal:
             print(self.current_gas)
+            print(x.id)
             if bp and x != bp[0] and self.gas_for_km(x.distance_to(bp[0])) < self.capacity:
                 if self.current_gas >= self.gas_for_km(x.distance_to(bp[0])): #If there is enough gas left in tank, don't fill up
                     self.current_gas -= self.gas_for_km(x.distance_to(bp[0]))
@@ -63,4 +69,5 @@ class Graph:
                     gas_info[x.id] = self.capacity - self.current_gas
                 self.current_gas -= self.gas_for_km(x.distance_to(x.next))
                 x = x.next
-        print(gas_info)
+        od = collections.OrderedDict(sorted(gas_info.items()))
+        return od

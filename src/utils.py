@@ -209,9 +209,4 @@ def get_route_params(filename):
         return capacity, tuple((row[0], row[1]) for row in reader)
 
 if __name__ == "__main__":
-    #export_extended_stations_infos()
-    #infos = tuple(get_extended_stations_infos())
-    #import json
-    #with open("resources/ext_stations.json", "w") as out_json:
-    #    json.dump(infos, out_json)
     pass

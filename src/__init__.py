@@ -5,7 +5,7 @@ from multiprocessing import Pool
 
 from .compat import printf
 from . import utils
-from . import predict
+from .prediction import predict_prices_timestamps_x2_stations
 
 def create_file_dirs(filename):
     ERROR_FILE_EXISTS = 17
@@ -16,29 +16,8 @@ def create_file_dirs(filename):
             #TODO something happened
             sys.exit(err.message)
 
-def process_task(args):
-    result = predict.predict_price(*args)
-    return result
-
-def predict_prices_timestamps_x2_stations(timestamps_x2_stations, dir_prices, nb_workers=None):
-    """return [<end_timestamp>, <timestamp>, <station_id>, <pred_price>],
-    timestamps_x2_stations: list[<end_timestamp>, <timestamp>, <station_id>]
-    dir_prices: directory path
-    """
-    #TODO fix parallel predictions
-    pool = Pool(nb_workers)
-
-    pred_params = [((station_id, timestamp, end_timestamp, dir_prices)) for end_timestamp, timestamp, station_id in timestamps_x2_stations]
-    pred_prices = pool.map(process_task, pred_params)
-    res_infos = []
-    for idx, pred_price in enumerate(pred_prices):
-        end_timestamp, timestamp, station_id = timestamps_x2_stations[idx]
-        res_infos.append((end_timestamp, timestamp, station_id, pred_price))
-    return res_infos
-
-
 def process_predictions(filename, dir_prices, out_filename=None, nb_workers=None):
-    out_filename = out_filename or 'benzlim_out/predictions.csv'
+    out_filename = out_filename or 'out/predictions.csv'
     timestamps_x2_stations = utils.get_prediction_params(filename)
     res_infos = predict_prices_timestamps_x2_stations(timestamps_x2_stations, dir_prices, nb_workers)
     create_file_dirs(out_filename)
@@ -47,7 +26,7 @@ def process_predictions(filename, dir_prices, out_filename=None, nb_workers=None
 
 
 def process_routing(filename, dir_prices, out_filename=None, gas_prices_file=None, nb_workers=None, auto_end_timestamp=True):
-    out_filename = out_filename or "benzlim_out/predictions_route.csv"
+    out_filename = out_filename or "out/predictions_route.csv"
     capacity, timestamps_stations = utils.get_route_params(filename)
 
     if gas_prices_file is None:
@@ -64,19 +43,19 @@ def process_routing(filename, dir_prices, out_filename=None, gas_prices_file=Non
 
     #TODO check make sure the route and predictions match each oder
     if len(timestamps_stations) != len(routing_infos):
-        print ("ERROR! incompatible prediction file")
+        printf("ERROR! incompatible prediction file")
     else:
         for idx, row in enumerate(routing_infos):
             row2 = timestamps_stations[idx]
             timestamp1, station1 = row[1], row[2]
             timestamp2, station2 = row2[0], row2[1]
             if timestamp1 != timestamp2 or station1 != station2:
-                print ("ERROR! wrong match: timestamp/station")
+                printf("ERROR! wrong match: timestamp/station")
 
     #TODO manage routing with infos in and output
     for end_timestamp, timestamp, station_id, pred_price in routing_infos:
         #TODO Build graph???
-        print (end_timestamp, timestamp, station_id, pred_price)
+        printf(end_timestamp, timestamp, station_id, pred_price)
     ## Routing...
 
     #res_infos: [<timestamp>, <station>, <pred_price>, <gas_quantity>

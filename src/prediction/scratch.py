@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import InterpolatedUnivariateSpline
 
-from db import DBManager
-import utils
+from .db import DBManager
+from .. import utils
 
 datetime_parser = dateutil.parser.parse
 

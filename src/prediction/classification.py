@@ -1,7 +1,7 @@
 from sklearn import tree
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from sklearn.model_selection import train_test_split
-from db import StationDAO
+from  .db import StationDAO
 
 
 

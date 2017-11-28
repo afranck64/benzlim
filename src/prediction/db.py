@@ -2,7 +2,7 @@
 import sqlite3
 import codecs
 import os
-import utils
+from .. import utils
 
 
 
@@ -204,6 +204,7 @@ class PriceDAO:
 
 if __name__ == "__main__":
     DBManager.init_db()
+    dir_prices = None
     #DBManager.populate_db(utils.get_all_prices(), DBManager.sql_insert_price)
     #DBManager.populate_db(utils.get_extended_stations_infos())
     #result = DBManager.execute("select * from stations")
@@ -223,7 +224,7 @@ if __name__ == "__main__":
     #res = DBManager.execute("select id, datetime(timestamp || ':00'), price from prices where station_id=1")
     #print len(res)
     STATION_ID = 4
-    res = utils.get_station_prices(STATION_ID) 
+    res = utils.get_station_prices(STATION_ID, dir_prices) 
     WINDOW = 50
     res = tuple(res)
     print len(res)

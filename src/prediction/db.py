@@ -183,7 +183,7 @@ class StationDAO:
     @classmethod
     def get(cls, pk):
         pk = str(pk)
-        return DBManager.execute(cls.select_query, pk)[0]
+        return DBManager.execute(cls.select_query, (pk,))[0]
 
 
 class PriceDAO:
@@ -198,7 +198,7 @@ class PriceDAO:
     @classmethod
     def get(cls, pk=None):
         pk = str(pk)
-        return DBManager.execute(cls.select_query, pk)[0]
+        return DBManager.execute(cls.select_query, (pk,))[0]
 
 
 

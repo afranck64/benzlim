@@ -9,3 +9,7 @@ class StationNotFoundException(BenzlimException):
 class PriceNotFoundException(BenzlimException):
     def __init__(self, *args, **kwargs):
         super(PriceNotFoundException, self).__init__(self, *args, **kwargs)
+
+class TrainingDataMissingException(BenzlimException):
+    def __init__(self, *args, **kwargs):
+        super(TrainingDataMissingException, self).__init__(self, *args, **kwargs)

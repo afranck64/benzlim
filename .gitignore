@@ -10,4 +10,5 @@ env/
 *.db3
 *.sqlite3
 *.dump
+*.pkl
 **__pycache__

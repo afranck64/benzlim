@@ -3,22 +3,17 @@ import sys
 import argparse
 from multiprocessing import Pool
 
+from .train import Trainer
 from .compat import printf
-from . import utils
+from .utils import create_file_dirs
+from .dao import CSVDAO
+from .config import Configuration
 from .prediction import predict_prices_timestamps_x2_stations
 
-def create_file_dirs(filename):
-    ERROR_FILE_EXISTS = 17
-    try:
-        os.makedirs(os.path.split(filename)[0])
-    except OSError as err:
-        if err.args[0] != ERROR_FILE_EXISTS:
-            #TODO something happened
-            sys.exit(err.message)
-
 def process_predictions(filename, dir_prices, out_filename=None, nb_workers=None):
-    out_filename = out_filename or 'out/predictions.csv'
-    timestamps_x2_stations = utils.get_prediction_params(filename)
+    if out_filename is None:
+        out_filename = os.path.join(Configuration.get_instance().output_dir, 'predictions.csv')
+    timestamps_x2_stations = CSVDAO.get_predict_params(filename)
     res_infos = predict_prices_timestamps_x2_stations(timestamps_x2_stations, dir_prices, nb_workers)
     create_file_dirs(out_filename)
     with open(out_filename, 'w') as output_f:
@@ -26,8 +21,9 @@ def process_predictions(filename, dir_prices, out_filename=None, nb_workers=None
 
 
 def process_routing(filename, dir_prices, out_filename=None, gas_prices_file=None, nb_workers=None, auto_end_timestamp=True):
-    out_filename = out_filename or "out/predictions_route.csv"
-    capacity, timestamps_stations = utils.get_route_params(filename)
+    if out_filename is None:
+        out_filename = os.path.join(Configuration.get_instance().output_dir, 'predictions_route.csv')
+    capacity, timestamps_stations = CSVDAO.get_route_params(filename)
 
     if gas_prices_file is None:
         timestamps_x2_stations = []
@@ -38,7 +34,7 @@ def process_routing(filename, dir_prices, out_filename=None, gas_prices_file=Non
                 end_timestamp = timestamp
         routing_infos = predict_prices_timestamps_x2_stations(timestamps_x2_stations, dir_prices, nb_workers)
     else:
-        routing_infos = utils.get_predicted_prices(gas_prices_file)
+        routing_infos = CSVDAO.get_predicted_prices(gas_prices_file)
     #routing_infos: [<end_timestamp>, <timestamp>, <station_id>, <pred_price>]
 
     #TODO check make sure the route and predictions match each oder
@@ -67,29 +63,48 @@ def process_routing(filename, dir_prices, out_filename=None, gas_prices_file=Non
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("-p", "--prediction", action="store_true", help="make prediction for considering end-training time")
-    group.add_argument("-r", "--routing", action="store_true", help="make a prediction and optimizes refuel strategy")
-    parser.add_argument("-a", "--auto-end-timestamp", action="store", type=int, help="uses the timestamp at <t-1> as lastest available data timestamp at <t>. values: 0|1 default: 1 (enabled)", default=1)
-    parser.add_argument("-o", "--output", action="store", help="output filename")
-    parser.add_argument("-n", "--nb-workers", action="store", type=int, help="number of workers, default: cpu_count")
-    parser.add_argument("-g", "--gas-prices-file", action="store", help="predicted gas prices file")
-    parser.add_argument("file", action="store", help="input filename")
-    parser.add_argument("dir_informaticup2018", action="store", help="Path referering to the InformatiCup/InformatiCup2018 folder")
+    parser = argparse.ArgumentParser(prog="python benzlim")
+    subparsers = parser.add_subparsers(dest="command", help="commands")
+
+    # A predict command
+    predict_parser = subparsers.add_parser("predict", help="Prices prediction")
+    predict_parser.add_argument("-o", "--output_file", action="store", help="output filename")
+    predict_parser.add_argument("-n", "--nb-workers", action="store", type=int, help="number of workers, default: cpu_count")
+    predict_parser.add_argument("file", action="store", help="input filename")
+    predict_parser.add_argument("informaticup2018_dir", action="store", help="Path referering to the InformatiCup/InformatiCup2018 folder")
+    
+    # A route command
+    route_parser = subparsers.add_parser("route", help="Prices prediction and routing")
+    route_parser.add_argument("-a", "--auto-end-timestamp", action="store", type=int, help="uses the timestamp at <t-1> as lastest available data timestamp at <t>. values: 0|1 default: 1 (enabled)", default=1)
+    route_parser.add_argument("-o", "--output_file", action="store", help="output filename")
+    route_parser.add_argument("-n", "--nb-workers", action="store", type=int, help="number of workers, default: cpu_count")
+    route_parser.add_argument("-g", "--gas-prices-file", action="store", help="predicted gas prices file")
+    route_parser.add_argument("file", action="store", help="input filename")
+    route_parser.add_argument("informaticup2018_dir", action="store", help="Path referering to the InformatiCup/InformatiCup2018 folder")
+
+    # A train command
+    train_parser = subparsers.add_parser("train", help="Training using available data")
+    train_parser.add_argument("informaticup2018_dir", action="store", help="Path referering to the InformatiCup/InformatiCup2018 folder")
+    
     args = parser.parse_args()
     
     if args.nb_workers is not None and args.nb_workers < 1:
         parser.error("argument -n/--nb-workers: expected at least 1")
     if not os.path.exists(args.file):
         parser.error("argument file: file <%s> not found" % args.file)
-    if not os.path.exists(args.dir_informaticup2018):
-        parser.error("argument dir_informaticup2018: directory <%s> not found" % args.dir_informaticup2018)
+    if args.output_file and not os.path.exists(args.output_file):
+        parser.error("argument output_file: file <%s> not found" % args.output_file)
+    if not os.path.exists(args.informaticup2018_dir):
+        parser.error("argument informaticup2018_dir: directory <%s> not found" % args.informaticup2018_dir)
     if args.gas_prices_file is not None:
         if not os.path.exists(args.gas_prices_file):
             parser.error("argument -g/--gas-prices_file: file <%s> not found" % args.gas_prices_file)
-    dir_prices = os.path.join(args.dir_informaticup2018, "Eingabedaten/Benzinpreise")
-    if args.prediction:
-        process_predictions(args.file, dir_prices, args.output, args.nb_workers)
-    elif args.routing:
-        process_routing(args.file, dir_prices, args.output, args.gas_prices_file, args.nb_workers, args.auto_end_timestamp)
+    Configuration.config(**vars(args))
+    config = Configuration.get_instance()
+    print args
+    if args.command == "predict":
+        process_predictions(config.file, config.prices_dir, config.output_file, config.nb_workers)
+    elif args.command == "route":
+        process_routing(config.file, config.prices_dir, config.output_file, args.gas_prices_file, config.nb_workers, args.auto_end_timestamp)
+    elif args.command == "train":
+        Trainer.train()

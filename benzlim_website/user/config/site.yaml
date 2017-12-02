@@ -1,0 +1,37 @@
+title: A Fuel Prediction Software  # Name of the site
+author:
+  name: Benzlim Group
+metadata:
+    description: 'Benzlim is a Fule Prediction Software based on Historical Data'
+
+# TopBar
+logo:
+  text: Benzlim
+  url: https://benzlim.tk/
+
+# Header customization
+header:
+  title: Benzlim
+  description: Predict Fuel Prices, <em>Hustle Free</em>.
+  buttons:
+    - text: "Quick Start"
+      url: "documentation"
+      icon: "spinner5"
+
+# User Panel
+userlinks:
+
+# Footer customization
+footer:
+  links:
+    - text: Terms &amp; Conditions
+      url: "#"
+    - text: Legals
+      url: "#"
+
+#Social Count
+socialcount:
+
+
+#Copyright
+copyright: Benzlim 2017. <br> Created by the Benzlim Group.

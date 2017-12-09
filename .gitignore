@@ -2,6 +2,7 @@ resources/
 out/
 benzlim_out/
 env/
+env3/
 .vscode/
 .idea/
 *.pyc

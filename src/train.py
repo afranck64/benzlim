@@ -2,6 +2,7 @@
 
 import os
 from .dao import (CSVDAO, DBManager, StationDAO)
+from .compat import printf
 from .config import Configuration
 
 class Trainer(object):
@@ -20,7 +21,6 @@ class Trainer(object):
 
 
 if __name__ == "__main__":
-    #print os.environ.get("informaticup2018_dir")
     Configuration.config(**os.environ)
-    print Configuration.get_instance().database_file
+    printf(Configuration.get_instance().database_file)
     Trainer.train()

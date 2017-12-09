@@ -6,6 +6,7 @@ import sqlite3
 import os
 
 from .. import utils
+from ..compat import printf
 from ..config import Configuration
 
 __all__ = ["DBManager", "StationDAO"]
@@ -130,7 +131,7 @@ class DBManager(object):
             if cls._auto_commit:
                 conn.commit()
         except (sqlite3.IntegrityError, sqlite3.InternalError):
-            print "Error on: ", sql, data
+            printf("Error on: ", sql, data)
             #TODO logging?
         return res
 
@@ -144,12 +145,12 @@ class DBManager(object):
                 try:
                     res.append(cursor.execute(sql, data_row))
                 except (sqlite3.IntegrityError, sqlite3.InternalError) as err:
-                    print "Error on: ", sql, data, err
+                    printf("Error on: ", sql, data, err)
         else:
             try:
                 res.append(cursor.execute(sql))
             except (sqlite3.IntegrityError, sqlite3.InternalError) as err:
-                print "Error on: ", sql, data, err
+                printf("Error on: ", sql, data, err)
         cursor.close()
         if cls._auto_commit:
             conn.commit()
@@ -227,4 +228,4 @@ if __name__ == "__main__":
     Configuration.config(**os.environ)
     lst = tuple(StationDAO.get_all_before("2016-09-27 19:41:31+02"))
     for row in lst:
-        print row[-1]
+        printf(row[-1])

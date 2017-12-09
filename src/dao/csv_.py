@@ -7,7 +7,7 @@ import datetime
 import dateutil.parser
 import codecs
 
-from ..b_exceptions import (PriceNotFoundException, StationNotFoundException)
+from ..b_exceptions import (PriceNotFoundException, StationNotFoundException, BadFormatException)
 from ..config import Configuration
 from ..utils import (str2latitute, str2longitude, str2mark, str2town,
                      str2unicode, str2zipcode)
@@ -98,17 +98,34 @@ class CSVDAO(object):
     @classmethod
     def get_predict_params(cls, filename):
         """return [<end_timestamp>, <prediction_timestamp>, <station_id>]"""
-        with codecs.open(filename, 'r') as input_f:
-            reader = csv.reader(input_f, dialect=None, delimiter=';')
-            return tuple((row[0], row[1], row[2]) for row in reader)
+        try:
+            with codecs.open(filename, 'r') as input_f:
+                reader = csv.reader(input_f, dialect=None, delimiter=';')
+                return tuple((row[0], row[1], row[2]) for row in reader)
+        except IndexError:
+            raise BadFormatException(filename)
+        except ValueError:
+            raise BadFormatException(filename)
 
     @classmethod
     def get_route_params(cls, filename):
         """return <capacity>, [<timestamp>, <station_id>]"""
-        with codecs.open(filename, 'r') as input_f:
-            capacity = int(input_f.readline())
-            reader = csv.reader(input_f, dialect=None, delimiter=';')
-            return capacity, tuple((row[0], row[1]) for row in reader)
+        try:
+            with codecs.open(filename, 'r') as input_f:
+                capacity = int(input_f.readline())
+                reader = csv.reader(input_f, dialect=None, delimiter=';')
+                return capacity, tuple((row[0], row[1]) for row in reader)
+        except IndexError:
+            raise BadFormatException(filename)
+        except ValueError:
+            raise BadFormatException(filename)
+
+    @classmethod
+    def get_route_as_predict_params(cls, filename):
+        capacity, timestamp_stations = cls.get_route_params(filename)
+        for timestamp, station_id in timestamp_stations:
+            yield None, timestamp, station_id
+
 
     @classmethod
     def get_predicted_prices(cls, filename):

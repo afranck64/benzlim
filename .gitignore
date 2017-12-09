@@ -12,4 +12,5 @@ env3/
 *.sqlite3
 *.dump
 *.pkl
+*.DS_Store
 **__pycache__

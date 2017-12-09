@@ -5,7 +5,7 @@ import cPickle as pickle
 
 import pandas as pd
 
-#from  .db import StationDAO
+from ..b_exceptions import (BadFormatException, BadFormatException, PriceNotFoundException)
 from ..config import Configuration
 from ..dao import StationDAO
 from ..utils import cosine_sim, cosine_sim2, diff_score
@@ -119,7 +119,7 @@ class Classifier(object):
             else:
                 ext_stations = StationDAO.get_all_before(end_train_timestamp)
                 if not ext_stations:
-                    print "FATAL ERROR, no training data available..."
+                    raise PriceNotFoundException("No training data available")
                 classifier = cls.train(*cls.get_prepared_data(ext_stations))
                 category = classifier.predict(cls.get_station_features(station_row))
                 print classifier.last_pred[:2]

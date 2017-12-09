@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 import dateutil
 
+from ..b_exceptions import (BadFormatException, BadValueException)
 from ..dao import CSVDAO, StationDAO
 from .classification import Classifier
 
@@ -261,16 +262,23 @@ def predictor_datetime64(predictor_f):
 
 
 def predict_price(station_id, timestamp, end_train_timestamp, dir_prices):
-    time_begin, time_end = get_time_range(timestamp)
-    usable_station_id = Classifier.station_id2id(station_id, end_train_timestamp)
-    if end_train_timestamp is not None:
-        if False and pd.Timestamp(timestamp) >= pd.Timestamp(end_train_timestamp):
-            predictor = get_price_predictor2(usable_station_id, dir_prices, time_begin=time_begin, time_end=time_end, end_train_timestamp=end_train_timestamp)
+    try:
+        time_begin, time_end = get_time_range(timestamp)
+        usable_station_id = Classifier.station_id2id(station_id, end_train_timestamp)
+        if end_train_timestamp is not None:
+            if False and pd.Timestamp(timestamp) >= pd.Timestamp(end_train_timestamp):
+                predictor = get_price_predictor2(usable_station_id, dir_prices, time_begin=time_begin, time_end=time_end, end_train_timestamp=end_train_timestamp)
+            else:
+                predictor =  get_price_predictor(usable_station_id, dir_prices, time_begin=time_begin, time_end=time_end, end_train_timestamp=end_train_timestamp)
         else:
-            predictor =  get_price_predictor(usable_station_id, dir_prices, time_begin=time_begin, time_end=time_end, end_train_timestamp=end_train_timestamp)
-    else:
-        predictor = get_price_predictor(usable_station_id, dir_prices, time_begin=time_begin, time_end=time_end, end_train_timestamp=end_train_timestamp)
-    return predictor(timestamp)
+            predictor = get_price_predictor(usable_station_id, dir_prices, time_begin=time_begin, time_end=time_end, end_train_timestamp=end_train_timestamp)
+        return predictor(timestamp)
+    except pd.tslib.OutOfBoundsDatetime as err:
+        raise BadValueException(err.message)
+    except TypeError as err:
+        raise BadValueException(err.message)
+    except ValueError as err:
+        raise BadValueException(err.message)
 
 def evaluate(ts, predictor, begin=None, end=None):
     orginal_values = ts[begin:end]

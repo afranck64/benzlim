@@ -2,7 +2,7 @@ import os
 from multiprocessing import Pool
 
 from . import predict
-from ..b_exceptions import BenzlimException
+from ..exceptions_ import BenzlimException
 from ..compat import printf
 from ..config import Configuration
 from ..dao import CSVDAO
@@ -22,7 +22,6 @@ def predict_prices_timestamps_x2_stations(timestamps_x2_stations, dir_prices, nb
     timestamps_x2_stations: list[<end_timestamp>, <timestamp>, <station_id>]
     dir_prices: directory path
     """
-    printf(timestamps_x2_stations)
     pred_params = [((station_id, timestamp, end_timestamp, dir_prices)) for end_timestamp, timestamp, station_id in timestamps_x2_stations]
     if nb_workers!=1:
         pool = Pool(nb_workers)

@@ -1,6 +1,4 @@
 
-
-import cPickle as pickle
 import os
 import warnings
 
@@ -8,7 +6,8 @@ import pandas as pd
 import numpy as np
 import dateutil
 
-from ..b_exceptions import (BadFormatException, BadValueException)
+from ..compat import printf, pickle
+from ..exceptions_ import (BadFormatException, BadValueException)
 from ..dao import CSVDAO, StationDAO
 from .classification import Classifier
 
@@ -237,7 +236,7 @@ def get_price_predictor2(station_id, dir_prices, ts=None, time_begin=None, time_
     if station_id is not None:
         cache_key = (station_id, end_train_timestamp, time_begin, time_end, poly_deg, 2)
     if cache_key in CACHE_PREDICTORS:
-        print "From cache"
+        printf ("From cache")
         return CACHE_PREDICTORS[cache_key]
     ts = ts if ts is not None else get_station_dataframe(station_id, dir_prices)
     ts = ts.between_time(time_begin, time_end)
@@ -274,11 +273,11 @@ def predict_price(station_id, timestamp, end_train_timestamp, dir_prices):
             predictor = get_price_predictor(usable_station_id, dir_prices, time_begin=time_begin, time_end=time_end, end_train_timestamp=end_train_timestamp)
         return predictor(timestamp)
     except pd.tslib.OutOfBoundsDatetime as err:
-        raise BadValueException(err.message)
+        raise BadValueException(err)
     except TypeError as err:
-        raise BadValueException(err.message)
+        raise BadValueException(err)
     except ValueError as err:
-        raise BadValueException(err.message)
+        raise BadValueException(err)
 
 def evaluate(ts, predictor, begin=None, end=None):
     orginal_values = ts[begin:end]

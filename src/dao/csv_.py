@@ -7,7 +7,7 @@ import datetime
 import dateutil.parser
 import codecs
 
-from ..b_exceptions import (PriceNotFoundException, StationNotFoundException, BadFormatException)
+from ..exceptions_ import (PriceNotFoundException, StationNotFoundException, BadFormatException)
 from ..config import Configuration
 from ..utils import (str2latitute, str2longitude, str2mark, str2town,
                      str2unicode, str2zipcode)

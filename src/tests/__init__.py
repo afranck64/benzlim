@@ -1,7 +1,7 @@
 import os
 import glob
 
-from ..b_exceptions import (BadFormatException, BenzlimException)
+from ..exceptions_ import (BadFormatException, BenzlimException)
 from ..compat import printf
 from ..config import Configuration
 from ..prediction import (process_predictions, process_routing)

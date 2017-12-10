@@ -1,4 +1,0 @@
-enabled: false
-built_in_css: false
-route: /user-login
-redirect: /

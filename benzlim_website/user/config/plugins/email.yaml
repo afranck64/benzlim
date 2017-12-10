@@ -1,7 +1,0 @@
-enabled: true
-from: info@benzlim.info
-to: info@benzlim.info
-mailer:
-  engine: sendmail
-  sendmail:
-    bin: '/usr/sbin/sendmail -bs'

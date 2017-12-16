@@ -1,3 +1,5 @@
+import cPickle as pickle
+
 def printf(*args, **kwargs):
     newline = kwargs.get('newline', True)
     if args:
@@ -11,3 +13,4 @@ def printf(*args, **kwargs):
     else:
         if newline:
             print '',
+

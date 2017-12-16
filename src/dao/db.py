@@ -6,6 +6,7 @@ import sqlite3
 import os
 
 from .. import utils
+from ..compat import printf
 from ..config import Configuration
 
 __all__ = ["DBManager", "StationDAO"]
@@ -63,9 +64,9 @@ class DBManager(object):
 
     @classmethod
     def open(cls):
-        filename = Configuration.get_instance().database_file
         if cls.conn:
             return
+        filename = Configuration.get_instance().database_file
         cls.conn = sqlite3.connect(filename)
         cls.conn.create_function("icompare", 2, icompare)
 
@@ -73,7 +74,9 @@ class DBManager(object):
     def get_conn(cls):
         if cls.conn is None:
             cls.open()
-        return cls.conn
+        tmp_conn = cls.conn
+        cls.conn = None
+        return tmp_conn
 
     @classmethod
     def close(cls):
@@ -130,7 +133,7 @@ class DBManager(object):
             if cls._auto_commit:
                 conn.commit()
         except (sqlite3.IntegrityError, sqlite3.InternalError):
-            print "Error on: ", sql, data
+            printf("Error on: ", sql, data)
             #TODO logging?
         return res
 
@@ -144,12 +147,12 @@ class DBManager(object):
                 try:
                     res.append(cursor.execute(sql, data_row))
                 except (sqlite3.IntegrityError, sqlite3.InternalError) as err:
-                    print "Error on: ", sql, data, err
+                    printf("Error on: ", sql, data, err)
         else:
             try:
                 res.append(cursor.execute(sql))
             except (sqlite3.IntegrityError, sqlite3.InternalError) as err:
-                print "Error on: ", sql, data, err
+                printf("Error on: ", sql, data, err)
         cursor.close()
         if cls._auto_commit:
             conn.commit()
@@ -178,6 +181,7 @@ class StationDAO(object):
     select_all_prices_available_sql = "select * from %s where prices_available" % table
     select_all_prices_missing_sql = "select * from %s where not (prices_available)" % table
     select_prices_is_available_sql = "select * from %s where id=?" % table
+    select_latitude_longitude = "select latitude, longitude from %s where id=?" % table
     insert_station_sql = "insert into %s (id, name, mark, street, street_number, zipcode, place, latitude, longitude, prices_available, begin_timestamp) "\
             "values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);" % table 
 
@@ -200,6 +204,16 @@ class StationDAO(object):
     @classmethod
     def get_all_before(cls, timestamp):
         return DBManager.execute(cls.select_all_before_sql, (timestamp,))
+
+    @classmethod
+    def get_latitude_longitude(cls, pk):
+        pk = str(pk)
+        #try:
+        return DBManager.execute(cls.select_latitude_longitude, (pk,))[0]
+        #except:
+        #    #TODO logging? exception
+        #    return 0, 0
+
     @classmethod
     def is_prices_available(cls, pk):
         pk = str(pk)
@@ -227,4 +241,4 @@ if __name__ == "__main__":
     Configuration.config(**os.environ)
     lst = tuple(StationDAO.get_all_before("2016-09-27 19:41:31+02"))
     for row in lst:
-        print row[-1]
+        printf(row[-1])

@@ -3,6 +3,8 @@
 import os
 import multiprocessing
 
+from .compat import printf
+
 class Configuration:
     """Contains the configuration to run a benzlim instance"""
     RESOURCE_DIR = "resources"
@@ -43,5 +45,5 @@ class Configuration:
         Configuration._config = Configuration(**kwargs)        
 
 if __name__ == "__main__":
-    print os.environ.get("INFORMATICUP2018_DIR", "(-_-)")
+    printf(os.environ.get("INFORMATICUP2018_DIR", "(-_-)"))
     Configuration.config(**os.environ)

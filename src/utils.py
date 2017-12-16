@@ -3,8 +3,8 @@
 """utils.py - usefool tools"""
 import sys
 import os.path
-
-#from .b_exceptions import (PriceNotFoundException, StationNotFoundException)
+from .compat import printf
+#from .exceptions_ import (PriceNotFoundException, StationNotFoundException)
 
 
 ERROR_FILE_EXISTS = 17
@@ -96,7 +96,7 @@ def str2zipcode(value):
     try:
         return int(value)
     except ValueError as err:
-        print (err)
+        printf (err)
         return 0
 
 def str2unicode(value):

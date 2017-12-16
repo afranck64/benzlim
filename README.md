@@ -34,3 +34,7 @@
 ### Training using available data
 
 - `python benzlim train $informaticup2018_dir`
+
+### Run the tests
+
+- `python benzlim test $informaticup2018_dir`

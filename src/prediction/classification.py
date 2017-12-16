@@ -1,11 +1,10 @@
 from math import atan2, pi
 import os
 
-import cPickle as pickle
-
 import pandas as pd
 
-#from  .db import StationDAO
+from ..exceptions_ import (BadFormatException, PriceNotFoundException)
+from ..compat import printf, pickle
 from ..config import Configuration
 from ..dao import StationDAO
 from ..utils import cosine_sim, cosine_sim2, diff_score
@@ -72,9 +71,9 @@ class CSClassifier(object):
 
         if self.partition_index is not None:
             x_escaped_index = self._escaped_index(x)
-            scores_labels = [(self.scoring_function(x_l, x_escaped_index), label) for label, x_l in trained_data.iteritems()]
+            scores_labels = [(self.scoring_function(x_l, x_escaped_index), label) for label, x_l in trained_data.items()]
         else:
-            scores_labels = [(self.scoring_function(x_l, x), label) for label, x_l in trained_data.iteritems()]
+            scores_labels = [(self.scoring_function(x_l, x), label) for label, x_l in trained_data.items()]
         scores_labels.sort()
         self.last_pred = [trained_data[scores_labels[i][1]]  for i in range(0, len(scores_labels))]
         return scores_labels[0][1]
@@ -119,10 +118,9 @@ class Classifier(object):
             else:
                 ext_stations = StationDAO.get_all_before(end_train_timestamp)
                 if not ext_stations:
-                    print "FATAL ERROR, no training data available..."
+                    raise PriceNotFoundException("No training data available")
                 classifier = cls.train(*cls.get_prepared_data(ext_stations))
                 category = classifier.predict(cls.get_station_features(station_row))
-                print classifier.last_pred[:2]
                 return category
 
     @classmethod
@@ -185,4 +183,4 @@ if __name__ == "__main__":
         sid = row
         cat = Classifier.station_id2id(row)
         if cat!= sid:
-            print "STATION: (%s) => (%s) " % (sid, cat), clf.last_pred[:2]
+            printf("STATION: (%s) => (%s) " % (sid, cat), clf.last_pred[:2])

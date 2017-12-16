@@ -43,6 +43,7 @@ def main():
     test_parser.add_argument("informaticup2018_dir", action="store", help="Path referering to the InformatiCup/InformatiCup2018 folder")
 
 
+
     args = parser.parse_args()
     
     if args.command in ("predict", "route"):
@@ -54,6 +55,7 @@ def main():
             parser.error("argument output_file: file <%s> not found" % args.output_file)
         if not os.path.exists(args.informaticup2018_dir):
             parser.error("argument informaticup2018_dir: directory <%s> not found" % args.informaticup2018_dir)
+    if args.command in ("route",):
         if args.gas_prices_file is not None:
             if not os.path.exists(args.gas_prices_file):
                 parser.error("argument -g/--gas-prices_file: file <%s> not found" % args.gas_prices_file)

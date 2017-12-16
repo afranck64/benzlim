@@ -121,7 +121,6 @@ class Classifier(object):
                     raise PriceNotFoundException("No training data available")
                 classifier = cls.train(*cls.get_prepared_data(ext_stations))
                 category = classifier.predict(cls.get_station_features(station_row))
-                printf(classifier.last_pred[:2])
                 return category
 
     @classmethod

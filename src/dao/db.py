@@ -64,9 +64,9 @@ class DBManager(object):
 
     @classmethod
     def open(cls):
-        filename = Configuration.get_instance().database_file
         if cls.conn:
             return
+        filename = Configuration.get_instance().database_file
         cls.conn = sqlite3.connect(filename)
         cls.conn.create_function("icompare", 2, icompare)
 
@@ -74,7 +74,9 @@ class DBManager(object):
     def get_conn(cls):
         if cls.conn is None:
             cls.open()
-        return cls.conn
+        tmp_conn = cls.conn
+        cls.conn = None
+        return tmp_conn
 
     @classmethod
     def close(cls):
@@ -179,6 +181,7 @@ class StationDAO(object):
     select_all_prices_available_sql = "select * from %s where prices_available" % table
     select_all_prices_missing_sql = "select * from %s where not (prices_available)" % table
     select_prices_is_available_sql = "select * from %s where id=?" % table
+    select_latitude_longitude = "select latitude, longitude from %s where id=?" % table
     insert_station_sql = "insert into %s (id, name, mark, street, street_number, zipcode, place, latitude, longitude, prices_available, begin_timestamp) "\
             "values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);" % table 
 
@@ -201,6 +204,16 @@ class StationDAO(object):
     @classmethod
     def get_all_before(cls, timestamp):
         return DBManager.execute(cls.select_all_before_sql, (timestamp,))
+
+    @classmethod
+    def get_latitude_longitude(cls, pk):
+        pk = str(pk)
+        #try:
+        return DBManager.execute(cls.select_latitude_longitude, (pk,))[0]
+        #except:
+        #    #TODO logging? exception
+        #    return 0, 0
+
     @classmethod
     def is_prices_available(cls, pk):
         pk = str(pk)

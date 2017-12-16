@@ -7,6 +7,7 @@ from ..compat import printf
 from ..config import Configuration
 from ..dao import CSVDAO
 from ..utils import create_file_dirs
+from ..graph import generate_tank_infos
 
 
 
@@ -76,9 +77,15 @@ def process_routing(filename, dir_prices, out_filename=None, gas_prices_file=Non
     #TODO manage routing with infos in and output
     for end_timestamp, timestamp, station_id, pred_price in routing_infos:
         #TODO Build graph???
-        printf(end_timestamp, timestamp, station_id, pred_price)
-    ## Routing...
+        printf(timestamp, station_id, pred_price)
 
+        pass
+
+    ## Routing...
+    tank_infos = generate_tank_infos(capacity, [row[1:] for row in routing_infos])
+    printf("Graph_result! <capacity>: ", capacity, "nb-stops: ", len(routing_infos))
+    for k, v in tank_infos.items():
+        printf(k, "=>", v)
     #res_infos: [<timestamp>, <station>, <pred_price>, <gas_quantity>
     res_infos = []
     create_file_dirs(out_filename)

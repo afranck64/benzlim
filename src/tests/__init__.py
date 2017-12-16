@@ -46,9 +46,10 @@ def test_route():
     for route, route_pred in routes_prices:
         try:
             printf("File: %s" % route)
-            process_routing(route, config.prices_dir, None, None, nb_workers=config.nb_workers)
+            res = process_routing(route, config.prices_dir, None, None, nb_workers=config.nb_workers)
         except BenzlimException as err:
             printf(err)
 
 def test():
     test_predict()
+    test_route()

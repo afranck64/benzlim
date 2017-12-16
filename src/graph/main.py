@@ -2,13 +2,17 @@ from InputFileReader import readRoute, read_id
 from Node import Node
 from Graph import Graph
 import random
+import os
+
+from ..compat import printf
+from ..config import Configuration
 
 
 if __name__ == '__main__':
-
-    d = readRoute("../../Data/bb.csv")
+    Configuration.config(**os.environ)
+    d = readRoute("./Data/bb.csv")
     g = Graph(d.pop("capacity"))
-    print(g.capacity)
+    #printf(g.capacity)
     for i in d:
         n = read_id(i)
         if n is not None:
@@ -20,6 +24,6 @@ if __name__ == '__main__':
     g.goal = g.nodes[-1]
     g.find_nexts()
     g.find_prevs()
-    #print(g.nodes[1].next.id)
+    #printf(g.nodes[1].next.id)
     info = g.drive_to_next()
-    print(info.items())
+    printf(info.items())

@@ -49,12 +49,13 @@ class Graph:
         x = self.start
         self.breakpoints.sort(key=lambda bps: bps.datetime)
         for element in self.breakpoints:
-            print(element.id)
+            #print(element.id)
+            pass
         bp = self.breakpoints
         gas_info = OrderedDict()
 
         while x != self.goal:
-            print(x.id, self.current_gas)
+            #print(x.id, self.current_gas)
             if bp and x != bp[0] and self.gas_for_km(x.distance_to(bp[0])) < self.capacity:
                 if self.current_gas >= self.gas_for_km(x.distance_to(bp[0])): #If there is enough gas left in tank, don't fill up
                     self.current_gas -= self.gas_for_km(x.distance_to(bp[0]))

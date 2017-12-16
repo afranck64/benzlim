@@ -1,8 +1,8 @@
 import csv
 import datetime
 from Node import Node
-
-FILE = "../../Data/Tankstellen.csv"
+from ..config import Configuration
+FILE = "./Data/Tankstellen.csv"
 
 
 def readRoute(pathRoute):
@@ -32,9 +32,10 @@ def readRoute(pathRoute):
     return d
 
 
-def read_id(id):
+def read_id(id, stations_file=None):
     headers = ['id', 'name', 'brand', 'adr', 'no', 'plz', 'ort', 'lat', 'lon']
-    with open(FILE) as cvsfile:
+    stations_file = stations_file or Configuration.get_instance().stations_file
+    with open(stations_file) as cvsfile:
         reader = csv.DictReader(cvsfile, fieldnames=headers, delimiter=';')
         for row in reader:
             if row['id'] == id:

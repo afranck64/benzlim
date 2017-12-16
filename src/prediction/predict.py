@@ -7,12 +7,11 @@ import numpy as np
 import dateutil
 
 from ..compat import printf, pickle
+from ..config import Configuration
 from ..exceptions_ import (BadFormatException, BadValueException)
 from ..dao import CSVDAO, StationDAO
 from .classification import Classifier
 
-
-TIME_SPLITS = ['%02.d:00' % h for h in range(24)]
 
 warnings.simplefilter('ignore', np.RankWarning)
 
@@ -23,25 +22,25 @@ def _to_hour(hour_stamp):
     return float(hour) + float(minute)/60.0
 
 def get_time_range(timestamp):
+    time_bins = Configuration.get_instance().TIME_BINS
     timestamp = pd.Timestamp(timestamp)
     hour_ref = timestamp.hour + timestamp.minute/60.0
     begin = None
     end = None
 
-    if hour_ref < _to_hour(TIME_SPLITS[0]):
-        begin = TIME_SPLITS[0]
-        end = TIME_SPLITS[-1]
+    if hour_ref < _to_hour(time_bins[0]):
+        begin = time_bins[0]
+        end = time_bins[-1]
     else:
-        for idh, hour_stamp in enumerate(TIME_SPLITS[1:]):
+        for idh, hour_stamp in enumerate(time_bins[1:]):
             hour = _to_hour(hour_stamp)
             if hour_ref > _to_hour(hour_stamp):
-                begin = TIME_SPLITS[idh]
-                end = TIME_SPLITS[(idh+1)%len(TIME_SPLITS)]
+                begin = time_bins[idh]
+                end = time_bins[(idh+1)%len(time_bins)]
             else:
-                begin = TIME_SPLITS[idh]
-                end = TIME_SPLITS[(idh+1)%len(TIME_SPLITS)]
+                begin = time_bins[idh]
+                end = time_bins[(idh+1)%len(time_bins)]
                 break
-    assert begin!=end
     return begin, end
 
 
@@ -51,7 +50,7 @@ class Predictor(object):
     def __init__(self, full_predictor=None, full_converter=None, year_predictor=None, month_predictor=None, week_predictor=None, day_predictor=None, hour_predictor=None, min_predictor=None):
         """
         full_predictor: <callable> return the complete prediction for a given timestamp
-        year_predictor: <callable> return the corresponding yearly average price 
+        year_predictor: <callable> return the corresponding yearly average price
         month_predictor: <callable> return the month relative average (from the year)
         week_predictor: <callable> return the corresponding relative average (from the month)
         day_predictor: <callable> the relative day predictor
@@ -105,9 +104,31 @@ def get_station_dataframe(station_id, dir_prices, datetime_parser=None):
     return ts
 
 def get_freq_avg(ts, freq="10T", fill_method='pad', fill_method2=None):
+    #"""
+    res = ts.resample(freq)
+    if fill_method == "pad":
+        res = res.pad()
+    elif fill_method == "ffill":
+        res = res.ffill()
+    elif fill_method == "bfill":
+        res = res.bfill()
+
+    if fill_method2 is not None:
+        res = res.resample(freq)
+
+    if fill_method2=="pad":
+        res = res.pad()
+    elif fill_method2 == "ffill":
+        res = res.ffill()
+    elif fill_method2 == "bfill":
+        res = res.bfill()
+
+    return res
+    #In Deprecation
+    """
     if fill_method2 is not None:
         return ts.resample(freq, fill_method=fill_method).fillna(fill_method2)    
-    return ts.resample(freq, fill_method=fill_method)
+    return ts.resample(freq, fill_method=fill_method)#"""
 
 def get_time(timestamp, field=None):
     """return the corresponding value of the attribut corresponding to <field>
@@ -176,8 +197,6 @@ def get_price_predictor(station_id, dir_prices, ts=None, time_begin=None, time_e
     ts_day = get_freq_avg(ts, 'D').tail(NB_DAYS).fillna('pad')
     ts_hour = get_freq_avg(ts, 'H').tail(NB_HOURS).fillna('pad')
     ts_min = get_freq_avg(ts, 'T').tail(NB_MINUTES).fillna('pad')
-    for ts_x in (ts_year, ts_month, ts_week, ts_day, ts_hour, ts_min):
-        pass
     
     year_avg_predictor = np.poly1d(np.polyfit(np.array([get_time(dt, 'Y') for dt in ts_year.index]), ts_year.values.flat, poly_deg))
 
@@ -272,11 +291,11 @@ def predict_price(station_id, timestamp, end_train_timestamp, dir_prices):
         else:
             predictor = get_price_predictor(usable_station_id, dir_prices, time_begin=time_begin, time_end=time_end, end_train_timestamp=end_train_timestamp)
         return predictor(timestamp)
-    except pd.tslib.OutOfBoundsDatetime as err:
-        raise BadValueException(err)
     except TypeError as err:
         raise BadValueException(err)
     except ValueError as err:
+        raise BadValueException(err)
+    except pd.errors.OutOfBoundsDatetime as err:
         raise BadValueException(err)
 
 def evaluate(ts, predictor, begin=None, end=None):

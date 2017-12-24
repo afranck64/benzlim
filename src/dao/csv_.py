@@ -130,7 +130,10 @@ class CSVDAO(object):
     @classmethod
     def get_predicted_prices(cls, filename):
         """return [<end_timestamp>, <prediction_timestamp>, <station_id>, <pred_price>]"""
-        with codecs.open(filename, 'r') as input_f:
-            reader = csv.reader(input_f, dialect=None, delimiter=';')
-            return tuple((row[0], row[1], int(row[2]), int(row[3])) for row in reader)
+        try:
+            with codecs.open(filename, 'r') as input_f:
+                reader = csv.reader(input_f, dialect=None, delimiter=';')
+                return tuple((row[0], row[1], int(row[2]), int(row[3])) for row in reader)
+        except IndexError:
+            raise BadFormatException(filename)
 

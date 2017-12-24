@@ -44,6 +44,7 @@ def process_predictions(filename, dir_prices, out_filename=None, nb_workers=None
     create_file_dirs(out_filename)
     with open(out_filename, 'w') as output_f:
         output_f.writelines("%s;%s;%s;%s\n"%(row) for row in res_infos)
+    return res_infos
 
 
 def process_routing(filename, dir_prices, out_filename=None, gas_prices_file=None, nb_workers=None, auto_end_timestamp=True):
@@ -91,3 +92,4 @@ def process_routing(filename, dir_prices, out_filename=None, gas_prices_file=Non
     create_file_dirs(out_filename)
     with open(out_filename, 'w') as output_f:
         output_f.writelines("%s;%s;%s;%s\n"%(row) for row in res_infos)
+    return res_infos

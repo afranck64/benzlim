@@ -283,6 +283,8 @@ def predict_price(station_id, timestamp, end_train_timestamp, dir_prices):
     try:
         time_begin, time_end = get_time_range(timestamp)
         usable_station_id = Classifier.station_id2id(station_id, end_train_timestamp)
+        if str(station_id) != str(usable_station_id):
+            printf("station_id: ", station_id, " ==>> ", usable_station_id)
         if end_train_timestamp is not None:
             if False and pd.Timestamp(timestamp) >= pd.Timestamp(end_train_timestamp):
                 predictor = get_price_predictor2(usable_station_id, dir_prices, time_begin=time_begin, time_end=time_end, end_train_timestamp=end_train_timestamp)

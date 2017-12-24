@@ -110,7 +110,9 @@ def create_file_dirs(filename):
     except OSError as err:
         if err.args[0] != ERROR_FILE_EXISTS:
             #TODO something happened
-            sys.exit(err.message)
+            #print err
+            #sys.exit(err.message)
+            pass
 
 def create_dirs(path):
     """craete all directories leading to path (inclusive itself)"""
@@ -119,7 +121,9 @@ def create_dirs(path):
     except OSError as err:
         if err.args[0] != ERROR_FILE_EXISTS:
             #TODO something happened
-            sys.exit(err.message)
+            #printf(err.message)
+            #sys.exit(err.message)
+            pass
 
 class Logger(object):
     DEBUG = 1

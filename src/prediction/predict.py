@@ -1,4 +1,4 @@
-
+import logging
 import os
 import warnings
 
@@ -104,6 +104,7 @@ def get_station_dataframe(station_id, dir_prices, datetime_parser=None):
     return ts
 
 def get_freq_avg(ts, freq="10T", fill_method='pad', fill_method2=None):
+    """resample the timeserie with the new frequence <freq> using the fill methods for NANs"""
     #"""
     res = ts.resample(freq)
     if fill_method == "pad":
@@ -159,45 +160,55 @@ def get_price_predictor(station_id, dir_prices, ts=None, time_begin=None, time_e
     poly_deg: int, the degree of polynomial approximation [1,2,3,4,5]
     return the callable prediction(timestamp)
 
-    if station_id is submitted, the predictor is cached resp. recovered from the cache"""
+    if station_id is submitted, the predictor is cached resp. recovered from the cache if available"""
     if time_begin is None or time_end is None:
         time_begin = "00:00"
         time_end = "23:59"
     if station_id is not None:
         cache_key = (station_id, end_train_timestamp, time_begin, time_end, poly_deg, 1)
     if cache_key in CACHE_PREDICTORS:
-        #TODO data gathered from cache
+            #TODO data gathered from cache
         return CACHE_PREDICTORS[cache_key]
+    SIZE_MIN = 2
     ts = ts if ts is not None else get_station_dataframe(station_id, dir_prices)
-    if end_train_timestamp is not None:
-        ts = ts[:end_train_timestamp]
+    ts_trimmed = ts[:end_train_timestamp]
+    if end_train_timestamp is not None and ts_trimmed.size >= SIZE_MIN:
+        ts = ts_trimmed
     ts_range = ts.between_time(time_begin, time_end)
-
-    coef = 4
-    NB_YEARS = 2 * coef
+    """
+    if ts.size == 1:
+        price = ts.values.flat[0]
+        return lambda x: price
+    """
+    coef = 2
+    NB_YEARS = 2
     NB_MONTHS = 12 * coef
     NB_WEEKS = 4 * coef
     NB_DAYS = 7 * coef
     NB_HOURS = 24 * coef
     NB_MINUTES = 60 * coef
-
-    if ts_range.size < NB_YEARS * NB_MONTHS * NB_WEEKS * NB_DAYS * NB_MINUTES:
-        ts = get_freq_avg(ts).between_time(time_begin, time_end)
-    else:
+    
+    if False and ts_range.size >= SIZE_MIN and ts_range.size < NB_YEARS * NB_MONTHS * NB_WEEKS * NB_DAYS * NB_MINUTES:
+        ts_range2 = get_freq_avg(ts).between_time(time_begin, time_end)
+        if ts_range2.size >= SIZE_MIN:
+            ts = ts_range2
+    elif ts_range.size >= SIZE_MIN:
         ts = ts_range
+    
     year_avg_predictor = None
     month_rel_predictor = None
     week_rel_predictor = None
     day_rel_predictor = None
     hour_rel_predictor = None
     min_rel_predictor = None
-    ts_year = get_freq_avg(ts, 'A').tail(NB_YEARS).fillna('pad')
-    ts_month = get_freq_avg(ts, 'M').tail(NB_MONTHS).fillna('pad')
-    ts_week = get_freq_avg(ts, 'W').tail(NB_WEEKS).fillna('pad')
-    ts_day = get_freq_avg(ts, 'D').tail(NB_DAYS).fillna('pad')
-    ts_hour = get_freq_avg(ts, 'H').tail(NB_HOURS).fillna('pad')
-    ts_min = get_freq_avg(ts, 'T').tail(NB_MINUTES).fillna('pad')
-    
+    ts_year = get_freq_avg(ts, 'Y').tail(NB_YEARS).fillna(method='bfill')
+    ts_month = get_freq_avg(ts, 'M').tail(NB_MONTHS).fillna(method='bfill').fillna(ts_year.values.flat[-1])
+    ts_week = get_freq_avg(ts, 'W').tail(NB_WEEKS).fillna(method='bfill').fillna(ts_month.values.flat[-1])
+    ts_day = get_freq_avg(ts, 'D').tail(NB_DAYS).fillna(method='bfill').fillna(ts_week.values.flat[-1])
+    ts_hour = get_freq_avg(ts, 'H').tail(NB_HOURS).fillna(method='bfill').fillna(ts_day.values.flat[-1])
+    ts_min = get_freq_avg(ts, 'T').tail(NB_MINUTES).fillna(method='bfill').fillna(ts_hour.values.flat[-1])
+
+    print ts_year.values.flat[-1], ts_month.values.flat[-1], ts_week.values.flat[-1], ts_day.values.flat[-1], ts_hour.values.flat[-1]
     year_avg_predictor = np.poly1d(np.polyfit(np.array([get_time(dt, 'Y') for dt in ts_year.index]), ts_year.values.flat, poly_deg))
 
     #relative values are generated using average and predicted values to carriage the prediction errors
@@ -234,8 +245,8 @@ def get_price_predictor(station_id, dir_prices, ts=None, time_begin=None, time_e
                 + hour_rel_predictor(get_time(timestamp, 'H'))\
                 + min_rel_predictor(get_time(timestamp, 'T'))
         return int(round(res))
-    #if cache_key:
-    #    CACHE_PREDICTORS[cache_key] = predictor
+    if cache_key and Configuration.get_instance().enabled_cache:
+        CACHE_PREDICTORS[cache_key] = predictor
     return predictor
 
 
@@ -255,15 +266,31 @@ def get_price_predictor2(station_id, dir_prices, ts=None, time_begin=None, time_
     if station_id is not None:
         cache_key = (station_id, end_train_timestamp, time_begin, time_end, poly_deg, 2)
     if cache_key in CACHE_PREDICTORS:
-        printf ("From cache")
+        logging.info("Retrieved from cache: %s" % str(cache_key))
         return CACHE_PREDICTORS[cache_key]
     ts = ts if ts is not None else get_station_dataframe(station_id, dir_prices)
-    ts = ts.between_time(time_begin, time_end)
+    #ts_resample = get_freq(ts.tail(60*24))
+    try:
+        ts = get_freq_avg(ts, "30T")
+        #print ts.tail(10)
+    except ValueError:
+        #print "err", ts.tail(5)
+        pass
+    SIZE_MIN = 2
+    MAX_SAMPLES = 16
+    
+    ts_between = ts.between_time(time_begin, time_end)
+    if ts_between.size >= SIZE_MIN:
+        ts = ts_between
     if end_train_timestamp is not None:
-        ts = ts[:end_train_timestamp]
+        ts_trimmed = ts[:end_train_timestamp]
+        if ts_trimmed.size >= SIZE_MIN:
+            ts = ts_trimmed
+    ts = ts.tail(MAX_SAMPLES)
+    ts = ts.dropna()
     predictor_f = np.poly1d(np.polyfit(ts.index.values.astype(int).flat, ts.values.flat, poly_deg))
     predictor = lambda timestamp: int(round(predictor_f(pd.Timestamp(timestamp).to_datetime64().astype(int))))
-    if cache_key:
+    if cache_key and Configuration.get_instance().enabled_cache:
         CACHE_PREDICTORS[cache_key] = predictor
     return predictor_datetime64(predictor_f)
 
@@ -284,19 +311,20 @@ def predict_price(station_id, timestamp, end_train_timestamp, dir_prices):
         time_begin, time_end = get_time_range(timestamp)
         usable_station_id = Classifier.station_id2id(station_id, end_train_timestamp)
         if str(station_id) != str(usable_station_id):
-            printf("station_id: ", station_id, " ==>> ", usable_station_id)
+            logging.info("station_id: %s ===>> %s" %(station_id, usable_station_id))
         if end_train_timestamp is not None:
-            if False and pd.Timestamp(timestamp) >= pd.Timestamp(end_train_timestamp):
-                predictor = get_price_predictor2(usable_station_id, dir_prices, time_begin=time_begin, time_end=time_end, end_train_timestamp=end_train_timestamp)
+            if pd.Timestamp(timestamp) >= pd.Timestamp(end_train_timestamp) and False:
+                predictor = get_price_predictor(usable_station_id, dir_prices, time_begin=time_begin, time_end=time_end, end_train_timestamp=end_train_timestamp)
             else:
-                predictor =  get_price_predictor(usable_station_id, dir_prices, time_begin=time_begin, time_end=time_end, end_train_timestamp=end_train_timestamp)
+                predictor =  get_price_predictor2(usable_station_id, dir_prices, time_begin=time_begin, time_end=time_end, end_train_timestamp=end_train_timestamp)
         else:
-            predictor = get_price_predictor(usable_station_id, dir_prices, time_begin=time_begin, time_end=time_end, end_train_timestamp=end_train_timestamp)
+            #TODO get back to predictor 1?
+            predictor = get_price_predictor2(usable_station_id, dir_prices, time_begin=time_begin, time_end=time_end, end_train_timestamp=end_train_timestamp)
         return predictor(timestamp)
-    except TypeError as err:
-        raise BadValueException(err)
-    except ValueError as err:
-        raise BadValueException(err)
+    #except TypeError as err:
+    #    raise BadValueException(err)
+    #except ValueError as err:
+    #    raise BadValueException(err)
     except pd.errors.OutOfBoundsDatetime as err:
         raise BadValueException(err)
 

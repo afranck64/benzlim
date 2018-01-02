@@ -4,6 +4,7 @@
 import sys
 import os.path
 from .compat import printf
+import logging
 #from .exceptions_ import (PriceNotFoundException, StationNotFoundException)
 
 
@@ -96,7 +97,7 @@ def str2zipcode(value):
     try:
         return int(value)
     except ValueError as err:
-        printf (err)
+        logging.error("str2zipcode: <%s>" % (value, err))
         return 0
 
 def str2unicode(value):
@@ -106,24 +107,19 @@ def str2unicode(value):
 def create_file_dirs(filename):
     """create all directories contenained in the tree to filename"""
     try:
-        os.makedirs(os.path.split(filename)[0])
+        path_dir = os.path.split(filename)[0]
+        if not os.path.exists(path_dir):
+            os.makedirs(path_dir)
     except OSError as err:
-        if err.args[0] != ERROR_FILE_EXISTS:
-            #TODO something happened
-            #print err
-            #sys.exit(err.message)
-            pass
+        logging.warn(err.message)
 
 def create_dirs(path):
     """craete all directories leading to path (inclusive itself)"""
     try:
-        os.makedirs(path)
+        if not os.path.exists(path):
+            os.makedirs(path)
     except OSError as err:
-        if err.args[0] != ERROR_FILE_EXISTS:
-            #TODO something happened
-            #printf(err.message)
-            #sys.exit(err.message)
-            pass
+        logging.warn(err.message)
 
 class Logger(object):
     DEBUG = 1

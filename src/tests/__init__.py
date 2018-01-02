@@ -1,3 +1,4 @@
+import logging
 import os
 import glob
 
@@ -10,6 +11,7 @@ from ..prediction import (process_predictions, process_routing)
 def diff_prices(data1, data2):
     if data1 and data2:
         lst = [abs(data1[i][-1]-data2[i][-1]) for i in range(len(data1))]
+        logging.debug("Diffs: %s" % str(lst))
         return min(lst), max(lst), sum(lst)/len(lst)
     else:
         return 0, 0, 0
@@ -28,7 +30,7 @@ def get_route_files_prices():
 def get_predict_files_prices():
     src_dir = Configuration.get_instance().src_dir
     #TODO
-    #rel_path = os.path.join("tests", "data_predict", "*keine*.csv")
+    rel_path = os.path.join("tests", "data_predict", "*keine*.csv")
     rel_path = os.path.join("tests", "data_predict", "*.csv")
     filenames = glob.glob(os.path.join(src_dir, rel_path))
     res = []
@@ -60,13 +62,17 @@ def test_predict():
             lst_min.append(min_)
             lst_max.append(max_)
             lst_avg.append(avg)
+        except BadFormatException as err:
+            assert "falsche" in p_file
         except BenzlimException as err:
-            #printf(err)
-            pass
-    min_ = sum(lst_min)/len(lst_min)
-    max_ = sum(lst_max)/len(lst_max)
-    avg = sum(lst_avg)/len(lst_avg)
-    printf("(avg_pred_errors) Min: %s, Max: %s, Avg: %s" % (min_, max_, avg))
+            logging.error(err)
+    if lst_avg:
+        min_ = sum(lst_min)/len(lst_min)
+        max_ = sum(lst_max)/len(lst_max)
+        avg = sum(lst_avg)/len(lst_avg)
+        logging.info("(avg_pred_errors) Min: %s, Max: %s, Avg: %s" % (min_, max_, avg))
+    else:
+        printf("No test result to show")
 
 def test_route():
     routes_prices = get_route_files_prices()
@@ -75,10 +81,12 @@ def test_route():
         try:
             #printf("File: %s" % route)
             res = process_routing(route, config.prices_dir, None, None, nb_workers=config.nb_workers)
+        except BadFormatException as err:
+            assert "falsche" in route
         except BenzlimException as err:
-            printf(err)
+            logging.error(err)
 
 def test():
     printf("Testing benzlim...")
     test_predict()
-    #test_route()
+    test_route()

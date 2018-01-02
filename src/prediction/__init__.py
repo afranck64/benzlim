@@ -1,8 +1,9 @@
+import logging
 import os
 from multiprocessing import Pool
 
 from . import predict
-from ..exceptions_ import BenzlimException
+from ..exceptions_ import BenzlimException, PriceNotFoundException
 from ..compat import printf
 from ..config import Configuration
 from ..dao import CSVDAO
@@ -10,13 +11,19 @@ from ..utils import create_file_dirs
 from ..graph import generate_tank_infos
 
 
+def initializer():
+    global config
+    config = Configuration.get_instance()
+    print "initialized"
 
 def process_task(args):
-    try:
-        result = predict.predict_price(*args)
-        return result
-    except BenzlimException as err:
-        return 1000
+    #try:
+    result = predict.predict_price(*args)
+    return result
+    #except ValueError as err:
+    #    logging.error(err)
+    #    raise err
+    #    return 1
 
 def predict_prices_timestamps_x2_stations(timestamps_x2_stations, dir_prices, nb_workers=None):
     """return [<end_timestamp>, <timestamp>, <station_id>, <pred_price>],
@@ -25,7 +32,7 @@ def predict_prices_timestamps_x2_stations(timestamps_x2_stations, dir_prices, nb
     """
     pred_params = [((station_id, timestamp, end_timestamp, dir_prices)) for end_timestamp, timestamp, station_id in timestamps_x2_stations]
     if nb_workers!=1:
-        pool = Pool(nb_workers)
+        pool = Pool(nb_workers, initializer, (), 1)
         pred_prices = pool.map(process_task, pred_params)
     else:
         pred_prices = [process_task(task) for task in pred_params]
@@ -66,29 +73,20 @@ def process_routing(filename, dir_prices, out_filename=None, gas_prices_file=Non
 
     #TODO check make sure the route and predictions match each oder
     if len(timestamps_stations) != len(routing_infos):
-        printf("ERROR! incompatible prediction file")
+        logging.error("ERROR! incompatible prediction file")
     else:
         for idx, row in enumerate(routing_infos):
             row2 = timestamps_stations[idx]
             timestamp1, station1 = row[1], row[2]
             timestamp2, station2 = row2[0], row2[1]
             if timestamp1 != timestamp2 or station1 != station2:
-                printf("ERROR! wrong match: timestamp/station")
+                logging.error("ERROR! wrong match: timestamp/station")
 
-    #TODO manage routing with infos in and output
-    for end_timestamp, timestamp, station_id, pred_price in routing_infos:
-        #TODO Build graph???
-        printf(timestamp, station_id, pred_price)
-
-        pass
-
-    ## Routing...
-    tank_infos = generate_tank_infos(capacity, [row[1:] for row in routing_infos])
-    printf("Graph_result! <capacity>: ", capacity, "nb-stops: ", len(routing_infos))
-    for k, v in tank_infos.items():
-        printf(k, "=>", v)
     #res_infos: [<timestamp>, <station>, <pred_price>, <gas_quantity>
-    res_infos = []
+    res_infos = generate_tank_infos(capacity, [row[1:] for row in routing_infos])
+    logging.debug("Graph_result! <capacity>: %s nb-stops: %s " % (capacity, len(routing_infos)))
+    for r in res_infos:
+        logging.debug(r)
     create_file_dirs(out_filename)
     with open(out_filename, 'w') as output_f:
         output_f.writelines("%s;%s;%s;%s\n"%(row) for row in res_infos)

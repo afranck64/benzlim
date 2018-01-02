@@ -1,5 +1,5 @@
-from .Graph import Graph
-from .Node import Node
+from .graph import Graph
+from .node import Node
 from ..dao.db import StationDAO
 
 

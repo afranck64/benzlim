@@ -1,7 +1,7 @@
+import logging
 import os
 import sys
 import argparse
-from multiprocessing import Pool
 
 from .train import Trainer
 from .compat import printf
@@ -11,7 +11,7 @@ from .config import Configuration
 from .prediction import (predict_prices_timestamps_x2_stations, process_predictions, process_routing)
 from .tests import test
 
-
+_log_names = [key for key in sorted(logging._levelNames) if isinstance(key, (str, unicode))]
 
 def main():
     parser = argparse.ArgumentParser(prog="python benzlim")
@@ -21,6 +21,7 @@ def main():
     predict_parser = subparsers.add_parser("predict", help="Prices prediction")
     predict_parser.add_argument("-o", "--output_file", action="store", help="output filename")
     predict_parser.add_argument("-n", "--nb-workers", action="store", type=int, help="number of workers, default: cpu_count")
+    predict_parser.add_argument("--log", action="store", help="Loging level, default: WARNING, values: %s " % _log_names)
     predict_parser.add_argument("file", action="store", help="input filename")
     predict_parser.add_argument("informaticup2018_dir", action="store", help="Path referering to the InformatiCup/InformatiCup2018 folder")
     
@@ -30,22 +31,31 @@ def main():
     route_parser.add_argument("-o", "--output_file", action="store", help="output filename")
     route_parser.add_argument("-n", "--nb-workers", action="store", type=int, help="number of workers, default: cpu_count")
     route_parser.add_argument("-g", "--gas-prices-file", action="store", help="predicted gas prices file")
+    route_parser.add_argument("--log", action="store", help="Loging level, default: WARNING, values: %s " % _log_names)
     route_parser.add_argument("file", action="store", help="input filename")
     route_parser.add_argument("informaticup2018_dir", action="store", help="Path referering to the InformatiCup/InformatiCup2018 folder")
 
     # A train command
     train_parser = subparsers.add_parser("train", help="Training using available data")
+    train_parser.add_argument("--log", action="store", help="Loging level, default: WARNING, values: %s " % _log_names)
     train_parser.add_argument("informaticup2018_dir", action="store", help="Path referering to the InformatiCup/InformatiCup2018 folder")
     
     # A test command
     test_parser = subparsers.add_parser("test", help="Test the program on some station and edge cases")
     test_parser.add_argument("-n", "--nb-workers", action="store", type=int, help="number of workers, default: cpu_count")
+    test_parser.add_argument("--log", action="store", help="Loging level, default: WARNING, values: %s " % _log_names)
     test_parser.add_argument("informaticup2018_dir", action="store", help="Path referering to the InformatiCup/InformatiCup2018 folder")
 
 
 
     args = parser.parse_args()
-    
+    if args.log:
+        if args.log.isdigit():
+            args.log = int(args.log)
+        else:
+            args.log = args.log.upper()
+        if args.log not in _log_names:
+            parser.error("argument -l/--log: wrong value. expected: %s" % _log_names)
     if args.command in ("predict", "route"):
         if args.nb_workers is not None and args.nb_workers < 1:
             parser.error("argument -n/--nb-workers: expected at least 1")

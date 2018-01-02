@@ -8,7 +8,7 @@ from ..compat import printf
 from ..config import Configuration
 from ..dao import CSVDAO
 from ..utils import create_file_dirs
-from ..graph import generate_tank_infos
+from ..routing import generate_tank_infos
 
 
 def initializer():

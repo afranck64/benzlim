@@ -3,6 +3,7 @@
 import glob
 import os.path
 import csv
+import logging
 import datetime
 import dateutil.parser
 import codecs
@@ -102,9 +103,11 @@ class CSVDAO(object):
             with codecs.open(filename, 'r') as input_f:
                 reader = csv.reader(input_f, dialect=None, delimiter=';')
                 return tuple((row[0], row[1], row[2]) for row in reader)
-        except IndexError:
+        except IndexError as err:
+            #logging.warn("%s | %s" % (err, filename))
             raise BadFormatException(filename)
-        except ValueError:
+        except ValueError as err:
+            #logging.warn("%s | %s" % (err, filename))
             raise BadFormatException(filename)
 
     @classmethod
@@ -115,9 +118,11 @@ class CSVDAO(object):
                 capacity = int(input_f.readline())
                 reader = csv.reader(input_f, dialect=None, delimiter=';')
                 return capacity, tuple((row[0], row[1]) for row in reader)
-        except IndexError:
+        except IndexError as err:
+            #logging.warn("%s | %s" % (err, filename))
             raise BadFormatException(filename)
-        except ValueError:
+        except ValueError as err:
+            #logging.warn("%s | %s" % (err, filename))
             raise BadFormatException(filename)
 
     @classmethod
@@ -130,7 +135,10 @@ class CSVDAO(object):
     @classmethod
     def get_predicted_prices(cls, filename):
         """return [<end_timestamp>, <prediction_timestamp>, <station_id>, <pred_price>]"""
-        with codecs.open(filename, 'r') as input_f:
-            reader = csv.reader(input_f, dialect=None, delimiter=';')
-            return tuple((row[0], row[1], int(row[2]), int(row[3])) for row in reader)
-
+        try:
+            with codecs.open(filename, 'r') as input_f:
+                reader = csv.reader(input_f, dialect=None, delimiter=';')
+                return tuple((row[0], row[1], int(row[2]), int(row[3])) for row in reader)
+        except IndexError as err:
+            #logging.warn("%s | %s" % (err, filename))
+            raise BadFormatException(filename)

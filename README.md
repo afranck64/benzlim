@@ -3,17 +3,19 @@
 ## Installation
 
 - create a directory: `InformatiCup`
-- clone the official InformatiCup project from the link: https://github.com/InformatiCup/InformatiCup2018 inside the `InformtatiCup` directory
+- clone the official InformatiCup project from the link [InformatiCup2018](https://github.com/InformatiCup/InformatiCup2018 ) inside the `InformtatiCup` directory
 - clone/move the `benzlim` project inside the `InformatiCup` directory
 
 ## Configuration
 
 - requirements:
-  - Python 2.7.x
-  - pip
+  - Python 2.7.x (x >= 9) (https://www.python.org/downloads/)
 
 - installation of required python packages:
-    `pip install --user -r requirements.txt`   #May need root access
+    `pip install --user -r requirements.txt`
+
+- train the model:
+  see [Model training](#train-model)
 
 ## Run
 
@@ -31,7 +33,7 @@
 
 - `python benzlim route -g $predicted_prices $route_file $informaticup2018_dir`
 
-### Training using available data
+### Train model
 
 - `python benzlim train $informaticup2018_dir`
 

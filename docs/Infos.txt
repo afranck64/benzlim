@@ -1,0 +1,59 @@
+Stand:
+    * Es werden Modelle für einzelne Tankstellen und einzelne Stunden trainiert
+    * Für fehlende Tankstellen (ohne) wird eine Tankstelle der gleichen Marke in der Nähe benutzt für die Vorhersage (Photo/Info, Preise sind stärker von der Marke abhängig als von dem Ort)
+    * Sollte die Tankstelle Preise haben aber dennoch nicht vor dem Endtrainingsdatum, wird eine andere Tankstelle (vorzugsweise der gleichen Marke) genommen, die in der Nähe ist und Preise vor dem Endtrainingsdatum hat
+    
+
+
+Stand:
+    * Tankstellenklassen werden betrachtet
+        + Es lassen sich bessere Vorhersagen generieren für neue Tankstellen
+        - Vorhersagen|Spezifische Eingeschaften sind stark von Klassifizierungsqualität abhängig
+    * Tankstellenklassen werden definiert über die Eingenschaften: avg_daily_update, avg_price, stdev_price
+        * Die Klassen decken zusammen Tankstellen, die zu Zeitpunkten den gleichen Preis haben, und ähnliche Preisänderungen vorzeigen
+    * Eingenschaften für die Auswahl der zugehöriger Klassen sind: Postleitzahl, Breitengrad, Längergrad (Mark und Ort werden noch hinzugefügt)
+    * Tankstellen ohne Preisinformationen greifen auf passende Tankstellenklassen für Vorhersagen
+    * En Entscheidungsbaum wurde benutzt für das Training
+
+        Problem:
+            Tankstellen einer gleichen Tankstellenklassen zeigen zu stark Preisentwicklungne
+        Lösung:
+                ==> Nutzung von ein vorhersage Model pro Tankstelle
+                ==> Tankstellenklassen könnten mit einer Polynomiale Approximierung der Preisentwicklung entschieden werden.
+                + ==> Die oben benutzte Klassifizierungstragie könnte dazu dienen, Ein Updatenetzwerk für Vorhersagemodellen zu bauen
+                    Das Netzwerk hätte Abhängigkeitsinformationen zwischen Tankstellenklassen und würde eine Estimation über \
+                    eine Tankstellenklasse basierend auf eine andere ermöglichen
+
+
+
+
+
+
+
+
+Clustering Features:
+    Postleitzahl | Location(Breitengrad|Längergrad)
+    Marke?
+    Durchschnitt tägliche Preisänderungen | Durchschnitt Updatesinterval(27 Rows returned from: select * from stations where id=7 or id in (8, 237, 1108, 1486, 1533, 2134, 2137, 2342, 2385, 2665, 4630, 4949, 5472, 6220, 6401, 6675, 7703, 7844, 8489, 9999, 10363, 11329, 12194, 12786, 12975, 14175); (took 4ms)
+
+
+
+
+
+Features:
+    Preis
+    Tag
+    Uhrzeit
+    Postleitzahl | Location(Breitengrad|Längergrad) 
+    Durchschnitt Updatesinterval?
+
+
+
+
+Ideas:
+    1- Reduce the data using Clustering (see clustering features)
+    2- Build and train the models|clusters
+        *The model should allow fixes based on current|new informations from every station
+            ** A model connecting 
+    3- Predict the route
+        

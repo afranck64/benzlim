@@ -1,9 +1,10 @@
+import logging
 from math import atan2, pi
 import os
 
 import pandas as pd
 
-from ..exceptions_ import (BadFormatException, PriceNotFoundException)
+from ..exceptions_ import (BadFormatException, TrainingDataMissingException)
 from ..compat import printf, pickle
 from ..config import Configuration
 from ..dao import StationDAO
@@ -118,7 +119,7 @@ class Classifier(object):
             else:
                 ext_stations = StationDAO.get_all_before(end_train_timestamp)
                 if not ext_stations:
-                    raise PriceNotFoundException("No training data available")
+                    raise TrainingDataMissingException("No training data available for station: %s on %s" % (station_id, end_train_timestamp))
                 classifier = cls.train(*cls.get_prepared_data(ext_stations))
                 category = classifier.predict(cls.get_station_features(station_row))
                 return category
@@ -161,8 +162,8 @@ class Classifier(object):
                 with open(filename) as input_f:
                     classifier = pickle.load(input_f)
                 cls._classifier = classifier
-            except:
-                #TODO logging
+            except (IOError, AttributeError) as err:
+                logging.warn(err)
                 classifier = cls.train()
                 cls._classifier = classifier
                 cls.dump(classifier)
@@ -173,12 +174,13 @@ if __name__ == "__main__":
 
     try:
         clf = Classifier.load()
-    except:
+    except IOError as err:
+        logging.warn(err)
         clf = Classifier.train()
         Classifier.dump(clf)
 
     missing_stations = StationDAO.get_all_without_prices()
-    for row in [5, 7, 33]:
+    for row in range( 1024):
         #sid = row[0]
         sid = row
         cat = Classifier.station_id2id(row)

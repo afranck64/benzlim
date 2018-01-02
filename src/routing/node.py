@@ -3,25 +3,27 @@ import datetime
 
 
 class Node:
-    id = 0
-    lat = 0
-    lon = 0
-    price = 0
-    datetime = ''
-    prev = None
-    next = None
-
-    def __init__(self, id, lat, lon):
+    def __init__(self, id, lat, lon, price=0, timestamp=''):
         self.id = id
         self.lat = lat
         self.lon = lon
         # set_price
+        self.price = price
+        self.datetime = timestamp
+        self.prev = None
+        self.next = None
 
     def __lt__(self, other):  # comparison method for priority queue
         return self.price < other.price
 
     def __eq__(self, other):
-        return self.id == other.id
+        return self.key == other.key
+    
+    def __str__(self):
+        return "Node:(%s, %s)" % (self.id, self.price)
+
+    def __repr__(self):
+        return self.__str__()
 
     def distance_to(self, other):
         #if other is None:
@@ -37,3 +39,7 @@ class Node:
 
     def set_price(self, price):
         self.price = price;
+
+    @property
+    def key(self):
+        return (self.datetime, self.id, self.price)

@@ -2,12 +2,14 @@
 
 """db.py - access station related informations"""
 
+import logging
 import sqlite3
 import os
 
 from .. import utils
 from ..compat import printf
 from ..config import Configuration
+from ..exceptions_ import StationNotFoundException
 
 __all__ = ["DBManager", "StationDAO"]
 
@@ -40,8 +42,9 @@ CREATE TABLE IF NOT EXISTS stations(
 );"""
 
 
-DB_SQL_INDEX_PRICES_AVAILABLE = "CREATE INDEX IF NOT EXISTS mark_index on stations(mark COLLATE NOCASE);"
-DB_SQL_INDEX_TIMESTAMP = "CREATE INDEX IF NOT EXISTS place_index on stations(place COLLATE NOCASE);"
+DB_SQL_INDEX_PRICES_AVAILABLE = "CREATE INDEX IF NOT EXISTS prices_index on stations(prices_available);"
+DB_SQL_INDEX_TIMESTAMP = "CREATE INDEX IF NOT EXISTS timestamp_index on stations(begin_timestamp)"
+
 
 
 def icompare(text1, text2):
@@ -132,9 +135,8 @@ class DBManager(object):
             cursor.close()
             if cls._auto_commit:
                 conn.commit()
-        except (sqlite3.IntegrityError, sqlite3.InternalError):
-            printf("Error on: ", sql, data)
-            #TODO logging?
+        except (sqlite3.IntegrityError, sqlite3.InternalError) as err:
+            logging.error(err)
         return res
 
     @classmethod
@@ -147,12 +149,12 @@ class DBManager(object):
                 try:
                     res.append(cursor.execute(sql, data_row))
                 except (sqlite3.IntegrityError, sqlite3.InternalError) as err:
-                    printf("Error on: ", sql, data, err)
+                    logging.error("SQLError: %s, Query: %s, Data: %s " % (err, sql, data))
         else:
             try:
                 res.append(cursor.execute(sql))
             except (sqlite3.IntegrityError, sqlite3.InternalError) as err:
-                printf("Error on: ", sql, data, err)
+                logging.error("SQLError: %s, Query: %s, Data: %s " % (err, sql, data))
         cursor.close()
         if cls._auto_commit:
             conn.commit()
@@ -197,38 +199,49 @@ class StationDAO(object):
         pk = str(pk)
         try:
             return DBManager.execute(cls.select_query_sql, (pk,))[0]
-        except:
-            #TODO loggin?
-            return None
+        except (sqlite3.Error) as err:
+            logging.error("SQLError: %s, Query: %s, Data: %s " % (err, cls.select_query_sql, pk))
+            raise StationNotFoundException("No station found with id: <%s>" % pk)
+        except (IndexError):
+            raise StationNotFoundException("No station found with id: <%s>" % pk)
     
     @classmethod
     def get_all_before(cls, timestamp):
+        """Return all stations with prices available before <timestamp>"""
         return DBManager.execute(cls.select_all_before_sql, (timestamp,))
 
     @classmethod
     def get_latitude_longitude(cls, pk):
+        """Return the latitude and longitude of the station with id <pk>"""
         pk = str(pk)
-        #try:
-        return DBManager.execute(cls.select_latitude_longitude, (pk,))[0]
-        #except:
-        #    #TODO logging? exception
-        #    return 0, 0
+        try:
+            return DBManager.execute(cls.select_latitude_longitude, (pk,))[0]
+        except (sqlite3.Error) as err:
+            logging.error("SQLError: %s, Query: %s, Data: %s " % (err, cls.select_latitude_longitude, pk))
+            raise StationNotFoundException("No station found with id: <%s>" % pk)
+        except (IndexError):
+            raise StationNotFoundException("No station found with id: <%s>" % pk)
 
     @classmethod
     def is_prices_available(cls, pk):
+        """Return True if the station <pk> has prices else False"""
         pk = str(pk)
         try:
             return DBManager.execute(cls.select_prices_is_available_sql, (pk,))[0]
-        except:
-            #TODO logging?
-            return False
+        except (sqlite3.Error) as err:
+            logging.error("SQLError: %s, Query: %s, Data: %s " % (err, cls.select_prices_is_available_sql, pk))
+            raise StationNotFoundException("No station found with id: <%s>" % pk)
+        except (IndexError):
+            raise StationNotFoundException("No station found with id: <%s>" % pk)
 
     @classmethod
     def get_all_with_prices(cls):
+        """Return all stations with prices available"""
         return DBManager.execute(cls.select_all_prices_available_sql)
 
     @classmethod
     def get_all_without_prices(cls):
+        """Return all stations without prices available"""
         return DBManager.execute(cls.select_all_prices_missing_sql)
 
     @classmethod

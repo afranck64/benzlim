@@ -1,5 +1,6 @@
 import csv
 import datetime
+import logging
 from Node import Node
 from ..config import Configuration
 FILE = "./Data/Tankstellen.csv"
@@ -12,8 +13,8 @@ def readRoute(pathRoute):
         capacity=next(routeReader)
         capacity=int(''.join(map(str,capacity)))
         d["capacity"]=capacity
-    except ValueError:
-        print("ValueError")
+    except ValueError as err:
+        logging.error(str(err))
         d["capacity"]=-1
     for row in routeReader:
         date, id=row[0].split(";")
@@ -28,7 +29,7 @@ def readRoute(pathRoute):
             datetime.datetime.strptime(date_time, '%Y-%m-%d %H:%M:%S')
             d[id] = date_time
         except ValueError:
-            print("Incorrect data format at id %s, should be YYYY-MM-DD HH:MM:SS" %id)
+            logging.error("Incorrect data format at id %s, should be YYYY-MM-DD HH:MM:SS" %id)
     return d
 
 
@@ -42,7 +43,7 @@ def read_id(id, stations_file=None):
                 lat = float(row['lat'])
                 lon = float(row['lon'])
                 return Node(id, lat, lon)
-        print('id %s not found' %id)
+        logging.error('id %s not found' %id)
         return None
 
 

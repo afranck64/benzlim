@@ -1,5 +1,37 @@
 from collections import OrderedDict
 
+
+class G:
+    def __init__(self, capacity, nodes=None):
+        self.nodes = nodes or []
+        self.breakpoints = []
+        self.capacity = capacity
+        self.current_gas = 0
+        self.start = None
+        self.goal = None
+        self.max_km = 0
+        self.pos_index = 0
+
+    def gas_for_km(self, km):
+        return km * 0.056
+
+    def gen_breakpoints(self):
+        lst_stops = [False] * len(self.nodes)
+        lst_stops[0] = True
+        self.breakpoints.append(self.nodes[0])
+        for idx, node in enumerate(self.nodes[1:-1]):
+            prev = self.breakpoints[-1]
+            if node.price < prev.price:
+                self.breakpoints.append(node)
+            else:
+                if self.gas_for_km(node.distance_to(prev)) < self.capacity:
+                    self.breakpoints.append(node)
+                else:
+                    pass
+                    
+            
+
+
 class Graph:
     def __init__(self, capacity):
         self.nodes = []

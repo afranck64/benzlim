@@ -81,13 +81,17 @@ def process_routing(filename, dir_prices, out_filename=None, gas_prices_file=Non
             timestamp2, station2 = row2[0], row2[1]
             if timestamp1 != timestamp2 or station1 != station2:
                 logging.error("ERROR! wrong match: timestamp/station")
-
+    
+    logging.debug("Routing infos")
+    logging.debug("\n".join(str(r) for r in routing_infos))
     #res_infos: [<timestamp>, <station>, <pred_price>, <gas_quantity>
     res_infos = generate_tank_infos(capacity, [row[1:] for row in routing_infos])
     logging.debug("Graph_result! <capacity>: %s nb-stops: %s " % (capacity, len(routing_infos)))
-    for r in res_infos:
-        logging.debug(r)
+    logging.debug("Res_infos")
+    logging.debug("\n".join(str(r) for r in res_infos))
     create_file_dirs(out_filename)
+    tank_price = sum(r[-2]*r[-1] for r in res_infos)
+    logging.debug("Tank price: %s" % tank_price)
     with open(out_filename, 'w') as output_f:
         output_f.writelines("%s;%s;%s;%s\n"%(row) for row in res_infos)
     return res_infos

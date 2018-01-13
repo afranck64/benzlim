@@ -97,7 +97,7 @@ def str2zipcode(value):
     try:
         return int(value)
     except ValueError as err:
-        logging.error("str2zipcode: <%s>" % (value, err))
+        logging.warn("str2zipcode: <%s | %s>" % (value, err))
         return 0
 
 def str2unicode(value):

@@ -182,7 +182,7 @@ class StationDAO(object):
     select_query_sql = "select * from %s where id=?" % table
     select_all_prices_available_sql = "select * from %s where prices_available" % table
     select_all_prices_missing_sql = "select * from %s where not (prices_available)" % table
-    select_prices_is_available_sql = "select * from %s where id=?" % table
+    select_prices_is_available_sql = "select prices_available from %s where id=?" % table
     select_latitude_longitude = "select latitude, longitude from %s where id=?" % table
     insert_station_sql = "insert into %s (id, name, mark, street, street_number, zipcode, place, latitude, longitude, prices_available, begin_timestamp) "\
             "values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);" % table 
@@ -227,7 +227,7 @@ class StationDAO(object):
         """Return True if the station <pk> has prices else False"""
         pk = str(pk)
         try:
-            return DBManager.execute(cls.select_prices_is_available_sql, (pk,))[0]
+            return DBManager.execute(cls.select_prices_is_available_sql, (pk,))[0][0]
         except (sqlite3.Error) as err:
             logging.error("SQLError: %s, Query: %s, Data: %s " % (err, cls.select_prices_is_available_sql, pk))
             raise StationNotFoundException("No station found with id: <%s>" % pk)

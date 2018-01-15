@@ -3,8 +3,9 @@
 ## Installation
 
 - create a directory: `InformatiCup`
-- clone the official InformatiCup project from the link [InformatiCup2018](https://github.com/InformatiCup/InformatiCup2018 ) inside the `InformtatiCup` directory
-- clone/move the `benzlim` project inside the `InformatiCup` directory
+- create a `InformatiCup2018` directory inside the previous one
+- clone the official InformatiCup project from the link [InformatiCup2018](https://github.com/InformatiCup/InformatiCup2018 ) inside the `InformtatiCup2018` directory
+- copy the `benzlim` project inside the `InformatiCup` directory
 
 ## Configuration
 
@@ -40,3 +41,7 @@
 ### Run the tests
 
 - `python benzlim test $informaticup2018_dir`
+
+### Run the benchmark
+
+- `python benzlim benchmark $informaticup2018_dir`

@@ -57,25 +57,27 @@ class CSClassifier(object):
                 classifier.trained_data[labels[id_]] = x
         return classifier
 
-    def predict(self, x):
+    def predict(self, x, try_skip_id=None):
         """predict class for features x based on the training data"""
         trained_data = dict()
         if self.partition_index is not None:
             partition_key = x[self.partition_index]
             partition = self.partitions.get(partition_key, dict())
             if partition:
-                trained_data = partition
+                trained_data.update(partition)
             else:
-                trained_data = self.trained_data
+                trained_data.update(self.trained_data)
         else:
-            trained_data = trained_data
-
+            trained_data.update(self.trained_data)
         if self.partition_index is not None:
             x_escaped_index = self._escaped_index(x)
             scores_labels = [(self.scoring_function(x_l, x_escaped_index), label) for label, x_l in trained_data.items()]
-        else:
+        else:    
             scores_labels = [(self.scoring_function(x_l, x), label) for label, x_l in trained_data.items()]
         scores_labels.sort()
+        if try_skip_id is not None:
+            if len(scores_labels) > 1 and scores_labels[0][1] == try_skip_id:
+                scores_labels = scores_labels[1:]
         self.last_pred = [trained_data[scores_labels[i][1]]  for i in range(0, len(scores_labels))]
         return scores_labels[0][1]
 
@@ -95,33 +97,39 @@ class Classifier(object):
         return station_row[0]
 
     @classmethod
-    def station_id2id(cls, station_id, end_train_timestamp=None):
+    def station_id2id(cls, station_id, end_train_timestamp=None, ignore_station=False):
         """Return a usable station id"""
         station_row = StationDAO.get(station_id)
-        return cls.station_row2id(station_row, end_train_timestamp)
+        return cls.station_row2id(station_row, end_train_timestamp, ignore_station)
     
     @classmethod
-    def station_row2id(cls, station_row, end_train_timestamp=None):
+    def station_row2id(cls, station_row, end_train_timestamp=None, ignore_station=False):
         """Return a usable (with prices available) id"""
         station_id = station_row[0]
         station_begin_timestamp = station_row[-1]
-        is_prices_available = station_row[-2]   
+        is_prices_available = station_row[-2] and not ignore_station
+        if ignore_station:
+            try_skip_ids = [station_id]
+        else:
+            try_skip_ids = None
         if end_train_timestamp is None:
             if is_prices_available:
                 return station_id
             else:
                 if cls._classifier is None:
                     cls.load()
-                return cls._classifier.predict(cls.get_station_features(station_row))
+                return cls._classifier.predict(cls.get_station_features(station_row), station_id)
         else:
-            if is_prices_available and pd.Timestamp(end_train_timestamp) > pd.Timestamp(station_begin_timestamp):
+            tm_end_train = pd.Timestamp(end_train_timestamp).tz_localize(None)
+            tm_station_begin = pd.Timestamp(station_begin_timestamp).tz_localize(None)
+            if is_prices_available and tm_end_train > tm_station_begin:
                 return station_id
             else:
                 ext_stations = StationDAO.get_all_before(end_train_timestamp)
                 if not ext_stations:
                     raise TrainingDataMissingException("No training data available for station: %s on %s" % (station_id, end_train_timestamp))
                 classifier = cls.train(*cls.get_prepared_data(ext_stations))
-                category = classifier.predict(cls.get_station_features(station_row))
+                category = classifier.predict(cls.get_station_features(station_row), station_id)
                 return category
 
     @classmethod
@@ -180,9 +188,9 @@ if __name__ == "__main__":
         Classifier.dump(clf)
 
     missing_stations = StationDAO.get_all_without_prices()
-    for row in range( 1024):
+    for row in range(320, 2048):
         #sid = row[0]
         sid = row
-        cat = Classifier.station_id2id(row)
-        if cat!= sid:
+        cat = Classifier.station_id2id(row, ignore_station=True)
+        if cat!= sid and  StationDAO.is_prices_available(row):
             printf("STATION: (%s) => (%s) " % (sid, cat), clf.last_pred[:2])

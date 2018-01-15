@@ -14,7 +14,6 @@ from ..routing import generate_tank_infos
 def initializer():
     global config
     config = Configuration.get_instance()
-    print "initialized"
 
 def process_task(args):
     #try:
@@ -31,9 +30,9 @@ def predict_prices_timestamps_x2_stations(timestamps_x2_stations, dir_prices, nb
     dir_prices: directory path
     """
     pred_params = [((station_id, timestamp, end_timestamp, dir_prices)) for end_timestamp, timestamp, station_id in timestamps_x2_stations]
-    if nb_workers!=1:
-        pool = Pool(nb_workers, initializer, (), 1)
-        pred_prices = pool.map(process_task, pred_params)
+    worker_pool = Configuration.get_instance().get_pool()
+    if worker_pool is not None:
+        pred_prices = worker_pool.map(process_task, pred_params)
     else:
         pred_prices = [process_task(task) for task in pred_params]
     res_infos = []
@@ -62,6 +61,8 @@ def process_routing(filename, dir_prices, out_filename=None, gas_prices_file=Non
     if gas_prices_file is None:
         timestamps_x2_stations = []
         end_timestamp = None
+        if timestamps_stations and auto_end_timestamp:
+            end_timestamp = timestamps_stations[0][0]
         for timestamp, station_id in timestamps_stations:
             timestamps_x2_stations.append((end_timestamp, timestamp, station_id))
             if auto_end_timestamp:

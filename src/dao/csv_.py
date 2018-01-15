@@ -5,8 +5,9 @@ import os.path
 import csv
 import logging
 import datetime
-import dateutil.parser
 import codecs
+
+import pandas as pd
 
 from ..exceptions_ import (PriceNotFoundException, StationNotFoundException, BadFormatException)
 from ..config import Configuration
@@ -26,6 +27,14 @@ class CSVDAO(object):
         """return True if prices are avaiable for the given station else False"""
         filename = cls.get_station_filename(station_id)
         return os.path.exists(filename)
+
+    @classmethod
+    def get_station_dataframe(cls, station_id, dir_prices):
+        """return a DataFrame containing timestamps and prices of the station <station_id>"""
+        station_fic = cls.get_station_filename(station_id, dir_prices)
+        ts = pd.read_csv(station_fic, index_col='timestamp', delimiter=";", header=None, names=["timestamp", "price"], parse_dates=True)
+        return ts
+
     
     @classmethod
     def get_all_extended_stations_infos(cls):

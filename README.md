@@ -40,3 +40,7 @@
 ### Run the tests
 
 - `python benzlim test $informaticup2018_dir`
+
+### Run the benchmark
+
+- `python benzlim benchmark $informaticup2018_dir`

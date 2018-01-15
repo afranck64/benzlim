@@ -49,16 +49,10 @@ def test_predict():
     lst_avg = []
     for p_file, p_file_price in predict_infos:
         try:
-            #printf(p_file)
-            #printf(p_file, p_file_price)
+            logging.debug("Predict file: %s" %p_file)
             data = process_predictions(p_file, config.prices_dir, None, config.nb_workers)
-            #print data
-            #print "FILE: ", p_file_price
             real_data = CSVDAO.get_predicted_prices(p_file_price)
-            #print real_data
-            #print data
             min_, max_, avg = diff_prices(data, real_data)
-            #print min_, max_, avg
             lst_min.append(min_)
             lst_max.append(max_)
             lst_avg.append(avg)
@@ -80,6 +74,7 @@ def test_route():
     for route, route_pred in routes_prices:
         try:
             #printf("File: %s" % route)
+            logging.debug("Route file: %s" % route)
             res = process_routing(route, config.prices_dir, None, None, nb_workers=config.nb_workers)
         except BadFormatException as err:
             assert "falsche" in route
@@ -89,4 +84,4 @@ def test_route():
 def test():
     printf("Testing benzlim...")
     test_predict()
-    test_route()
+    #test_route()

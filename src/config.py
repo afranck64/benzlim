@@ -4,6 +4,7 @@ import logging
 import os
 import sys
 import multiprocessing
+import platform
 
 from .compat import printf
 
@@ -13,12 +14,18 @@ class Configuration:
     OUTPUT_DIR = "out"
     CLASSIFIER_FILENAME = "classifier.pkl"
     DATABASE_FILENAME = "db.sqlite3"
-    TIME_BINS = ['%02.d:00' % h for h in range(24)]
+    TIME_BINS = ['%02.d:00' % h for h in range(0, 24, 1)]
     def __init__(self, **kwargs):
         #hourly intervalls to take into consideration for the model training
         self.time_bins = self.TIME_BINS
         #nb of worker processes
-        self.nb_workers = kwargs.get("nb_workers", multiprocessing.cpu_count())
+        self.nb_workers = kwargs.get("nb_workers") or multiprocessing.cpu_count()
+        if platform.system() in ("Windows",):
+            if self.nb_workers > 1:
+                logging.warning("Multiprocessing not yet supported on this platform. Switching to Mono-processing")
+                self.nb_workers = 1
+        # Working pool instance
+        self.worker_pool = None
         #abspath to the <src> dir
         self.src_dir = os.path.abspath(os.path.join(os.path.split(__file__)[0], '.'))
         #abspath to the <benzlim> dir
@@ -43,7 +50,7 @@ class Configuration:
         #path to a generated gas prices file, usable for routing
         self.gas_prices_file = kwargs.get("gas_prices_file", None)
         #enable or disable caching price predictors
-        self.enabled_cache = kwargs.get("enabled_cache", False)
+        self.enabled_cache = kwargs.get("enabled_cache", True)
         #output file
         self.output_file = kwargs.get("output_file")
         #input file
@@ -62,6 +69,13 @@ class Configuration:
         config = Configuration(**kwargs)
         Configuration._config = config 
         logging.basicConfig(level=config.log_level)
+
+
+    def get_pool(self):
+        _config = self.get_instance()
+        if self.worker_pool is None and self.nb_workers > 1:
+            self.worker_pool = multiprocessing.Pool(self.nb_workers)
+        return self.worker_pool
 
 if __name__ == "__main__":
     printf(os.environ.get("INFORMATICUP2018_DIR", "(-_-)"))

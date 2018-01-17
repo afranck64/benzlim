@@ -11,6 +11,7 @@ from .dao import CSVDAO
 from .config import Configuration
 from .prediction import (predict_prices_timestamps_x2_stations, process_predictions, process_routing)
 from .tests import test
+from .coverage import coverage
 
 _log_names = [key for key in sorted(logging._levelNames) if isinstance(key, (str, unicode))]
 
@@ -54,7 +55,10 @@ def main():
     bench_parser.add_argument("--log", action="store", help="Loging level, default: WARNING, values: %s " % _log_names)
     bench_parser.add_argument("informaticup2018_dir", action="store", help="Path referring to the InformatiCup/InformatiCup2018 folder")
 
-
+    # A coverage command
+    coverage_parser = subparsers.add_parser("coverage", help="Create coverage benchmarking data under the folder 'htmlcov'")
+    coverage_parser.add_argument("--log", action="store", help="Loging level, default: WARNING, values: %s " % _log_names)
+    coverage_parser.add_argument("informaticup2018_dir", action="store", help="Path referring to the InformatiCup/InformatiCup2018 folder")
 
     args = parser.parse_args()
     if args.log:
@@ -90,3 +94,5 @@ def main():
         test()
     elif args.command == "benchmark":
         process_benchmark(config.prices_dir)
+    elif args.command == "coverage":
+        coverage()

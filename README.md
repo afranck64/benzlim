@@ -45,3 +45,7 @@
 ### Run the benchmark
 
 - `python benzlim benchmark $informaticup2018_dir`
+
+### Run the coverage benchmark
+
+- `python benzlim coverage $informaticup2018_dir`

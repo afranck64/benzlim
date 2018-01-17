@@ -105,7 +105,7 @@ def str2unicode(value):
     return value.decode('utf8')
 
 def create_file_dirs(filename):
-    """create all directories contenained in the tree to filename"""
+    """create all directories contained in the tree to filename"""
     try:
         path_dir = os.path.split(filename)[0]
         if not os.path.exists(path_dir):
@@ -114,7 +114,7 @@ def create_file_dirs(filename):
         logging.warn(err.message)
 
 def create_dirs(path):
-    """craete all directories leading to path (inclusive itself)"""
+    """create all directories leading to path (inclusive itself)"""
     try:
         if not os.path.exists(path):
             os.makedirs(path)

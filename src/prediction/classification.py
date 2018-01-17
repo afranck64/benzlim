@@ -18,7 +18,7 @@ HASH_MAX = 982451653
 NB_CHARS = 30 + 10 + 5
 
 def get_str_hash(str_obj):
-    """Generates a python/platform indepent str-hash"""
+    """Generates a python/platform independent str-hash"""
     if not isinstance(str_obj, (str, unicode)):
         return -1
     obj_hash = len(str_obj)

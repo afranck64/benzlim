@@ -47,6 +47,9 @@ def benchmark_station(station_id, dir_prices, base_station_id=None, nb_predictio
     return evaluate(station_id, ts, ground_ts, end_train_timestamp, dir_prices, nb_predictions)
 
 
+def process_benchmark_station(args):
+    return benchmark_station(*args)
+
 def benchmark_with_prices(nb_stations, dir_prices):
     stations = StationDAO.get_all_with_prices()
     station_ids = [row[0] for row in stations]
@@ -81,9 +84,6 @@ def benchmark_with_prices(nb_stations, dir_prices):
     max_ = max(lst_max)
     avg = sum(lst_avg)/len(lst_avg) 
     printf("stations_with_prices: min: %s, max: %s, avg: %s: " % (min_, max_, avg))
-
-def process_benchmark_station(args):
-    return benchmark_station(*args)
 
 
 def benchmark_without_prices(nb_stations, dir_prices):

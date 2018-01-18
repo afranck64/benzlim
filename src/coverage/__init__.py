@@ -6,7 +6,7 @@ from ..exceptions_ import (BadFormatException, BenzlimException)
 from ..compat import printf
 from ..config import Configuration
 
-def execute_coverage():
+def execute_coverage(): #pragma: no cover
     #An instance of the configuration
     config = Configuration.get_instance()
     #executing coverage for the sample train command
@@ -18,7 +18,7 @@ def execute_coverage():
     #renaming the created coverage file in order to merge the results after executing all the commands
     #os.system("mv .coverage .coverage.test")
     #executing coverage for the sample benchmark command
-    os.system("coverage run -p %s benchmark %s" % (config.base_dir, config.informaticup2018_dir))
+    os.system("coverage run -p %s benchmark %s -n1" % (config.base_dir, config.informaticup2018_dir))
     #renaming the created coverage file in order to merge the results after executing all the commands
     #os.system("mv .coverage .coverage.benchmark")
     #executing coverage for the sample predict command
@@ -40,6 +40,6 @@ def execute_coverage():
     printf("For a nicer presentation of the results please navigate to the folder '%s/htmlcov'." % config.output_dir)
     return
 
-def coverage():
+def coverage(): #pragma: no cover
     printf("Creating coverage benchmarks for benzlim...")
     execute_coverage()

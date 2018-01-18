@@ -116,15 +116,12 @@ def benchmark_without_prices(nb_stations, dir_prices):
             lst_min.append(min_)
             lst_max.append(max_)
             lst_avg.append(avg)
-            #printf(min_, max_, avg)
-
     else:
         for task in tasks:
             min_, max_, avg = process_benchmark_station(task)
             lst_min.append(min_)
             lst_max.append(max_)
             lst_avg.append(avg)
-            #printf(min_, max_, avg)
     min_ = min(lst_min)
     max_ = max(lst_max)
     avg = sum(lst_avg)/len(lst_avg)

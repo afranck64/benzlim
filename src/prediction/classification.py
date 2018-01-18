@@ -8,7 +8,7 @@ from ..exceptions_ import (BadFormatException, TrainingDataMissingException)
 from ..compat import printf, pickle
 from ..config import Configuration
 from ..dao import StationDAO
-from ..utils import cosine_sim, cosine_sim2, diff_score
+from ..utils import diff_score
 
 LATITUDE_MAX = 90.0
 LONGITUDE_MAX = 180.0
@@ -16,20 +16,6 @@ LONGITUDE_MAX = 180.0
 HASH_MAX = 982451653
 #German: nb_letters + nb_digits + punctuation
 NB_CHARS = 30 + 10 + 5
-
-def get_str_hash(str_obj):
-    """Generates a python/platform independent str-hash"""
-    if not isinstance(str_obj, (str, unicode)):
-        return -1
-    obj_hash = len(str_obj)
-    for symbol in str_obj:
-        obj_hash *= ord(symbol) % NB_CHARS
-        obj_hash %= HASH_MAX + 1
-    return obj_hash
-
-def n_cos(v1, v2):
-    return 1 - abs(cosine_sim2(v1, v2))
-
 
 class CSClassifier(object):
     def __init__(self, scoring_function=None, partition_index=0):
@@ -177,7 +163,7 @@ class Classifier(object):
                 cls.dump(classifier)
         return classifier
 
-if __name__ == "__main__":
+if __name__ == "__main__":  #pragma: no cover
     Configuration.config(**os.environ)
 
     try:

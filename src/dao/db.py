@@ -250,7 +250,7 @@ class StationDAO(object):
         return DBManager.executemany(cls.insert_station_sql, data)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  #pragma: no cover
     Configuration.config(**os.environ)
     lst = tuple(StationDAO.get_all_before("2016-09-27 19:41:31+02"))
     for row in lst:

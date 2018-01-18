@@ -20,7 +20,7 @@ class Trainer(object):
 
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  #pragma: no cover
     Configuration.config(**os.environ)
     printf(Configuration.get_instance().database_file)
     Trainer.train()

@@ -11,18 +11,9 @@ from ..utils import create_file_dirs
 from ..routing import generate_tank_infos
 
 
-def initializer():
-    global config
-    config = Configuration.get_instance()
-
 def process_task(args):
-    #try:
     result = predict.predict_price(*args)
     return result
-    #except ValueError as err:
-    #    logging.error(err)
-    #    raise err
-    #    return 1
 
 def predict_prices_timestamps_x2_stations(timestamps_x2_stations, dir_prices, nb_workers=None):
     """return [<end_timestamp>, <timestamp>, <station_id>, <pred_price>],

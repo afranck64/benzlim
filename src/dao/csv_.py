@@ -151,3 +151,14 @@ class CSVDAO(object):
         except IndexError as err:
             #logging.warn("%s | %s" % (err, filename))
             raise BadFormatException(filename)
+
+    @classmethod
+    def export_to_csv(cls, filename, rows, header=None):
+        """rows in the file <filename> as csv"""
+        with codecs.open(filename, 'w') as output_f:
+            writer = csv.writer(output_f, dialect=None, delimiter=';')
+            if header:
+                writer.writerow(header)
+            for row in rows:
+                writer.writerow(row)
+

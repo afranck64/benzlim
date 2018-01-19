@@ -1,3 +1,5 @@
+from math import ceil
+import os.path
 import numpy as np
 
 from .prediction import predict
@@ -6,12 +8,10 @@ from .prediction.classification import Classifier
 from .dao import CSVDAO
 from .dao import StationDAO
 from .compat import printf
-from config import Configuration
+from .config import Configuration
 
 
-def evaluate(station_id, ts, ground_ts, end_train_timestamp, dir_prices, nb_predictions=16):
-    #print "GROUND:", ground_ts.head(10)
-    #print "last_ts", ts.last("M")
+def evaluate(station_id, ts, ground_ts, end_train_timestamp, dir_prices, nb_predictions):
     timestamps = ground_ts.index.values.flat
     prices = ground_ts.values.flat
     real_prices = np.zeros(nb_predictions)
@@ -25,19 +25,20 @@ def evaluate(station_id, ts, ground_ts, end_train_timestamp, dir_prices, nb_pred
     diff = real_prices - pred_prices
     diff = abs(diff)
     diff += 0.5
+    rel_diff = diff/real_prices
     diff = diff.astype(int)
-    return np.min(diff), np.max(diff), np.average(diff)
+    return np.max(diff), np.average(diff), np.average(rel_diff)
 
 def benchmark_station(station_id, dir_prices, base_station_id=None, nb_predictions=5):
     """test predictions on <station_id> using values of <base_station_id> as ground truth,
     if base_station_id is not given, station_id is used as ground truth
     
     return prediction errors:
-        min, max, avg"""
+        max, max, avg"""
     ts = CSVDAO.get_station_dataframe(station_id, dir_prices)
     index_end = np.random.randint(2, ts.size)
     end_train_timestamp = ts.index.values.flat[index_end]
-    # We test prediction till one month for the station
+    # We test prediction till one month befor the station
     if base_station_id is None:
         ground_ts = ts
     else:
@@ -50,48 +51,51 @@ def benchmark_station(station_id, dir_prices, base_station_id=None, nb_predictio
 def process_benchmark_station(args):
     return benchmark_station(*args)
 
-def benchmark_with_prices(nb_stations, dir_prices):
+def benchmark_with_prices(nb_stations, nb_predictions, dir_prices):
     stations = StationDAO.get_all_with_prices()
     station_ids = [row[0] for row in stations]
-    lst_min = []
-    lst_max = []
-    lst_avg = []
+    lst_abs_max = []
+    lst_abs_avg = []
+    lst_rel_avg = []
     
     tasks = []
     for idx in range(nb_stations):
         station_id = np.random.choice(station_ids)
-        #min_, max_, avg = benchmark_station(station_id, dir_prices)
-        tasks.append((station_id, dir_prices))
+        tasks.append((station_id, dir_prices, None, nb_predictions))
 
     pool = Configuration.get_instance().get_pool()
+    lst_res = []
     if pool is not None:
         lst_res = pool.map(process_benchmark_station, tasks)
-        for res in lst_res:
-            min_, max_, avg = res
-            lst_min.append(min_)
-            lst_max.append(max_)
-            lst_avg.append(avg)
-            #printf(min_, max_, avg)
-
     else:
-        for task in tasks:
-            min_, max_, avg = process_benchmark_station(task)
-            lst_min.append(min_)
-            lst_max.append(max_)
-            lst_avg.append(avg)
-            #printf(min_, max_, avg)
-    min_ = min(lst_min)
-    max_ = max(lst_max)
-    avg = sum(lst_avg)/len(lst_avg) 
-    printf("stations_with_prices: min: %s, max: %s, avg: %s: " % (min_, max_, avg))
+        lst_res = [process_benchmark_station(task) for task in tasks]
+
+    rows = []
+    for idx, res in enumerate(lst_res):
+        abs_max = int(ceil(res[0]))
+        abs_avg = int(ceil(res[1]))
+        rel_avg = round(res[2], 4)
+        lst_abs_max.append(abs_max)
+        lst_abs_avg.append(abs_avg)
+        lst_rel_avg.append(rel_avg)
+        rows.append((tasks[idx][0], abs_max, abs_avg, rel_avg))
+
+    g_abs_max = max(lst_abs_max)
+    g_abs_avg = sum(lst_abs_avg)/len(lst_abs_avg)
+    g_rel_avg = sum(lst_rel_avg)/len(lst_rel_avg) 
+    printf("stations_with_prices: max abs: %s, avg abs: %s, avg rel: %.3f: " % (g_abs_max, g_abs_avg, g_rel_avg))
 
 
-def benchmark_without_prices(nb_stations, dir_prices):
+    out_filename = os.path.join(Configuration.get_instance().output_dir, "benchmark_with_prices.csv")
+    CSVDAO.export_to_csv(out_filename, rows, ["station_id", "abs error max", "avg abs err", "avg rel. err"])
+
+
+def benchmark_without_prices(nb_stations, nb_predictions, dir_prices):
     stations = StationDAO.get_all_with_prices()
     station_ids = [row[0] for row in stations]
-    lst_min = []
-    lst_max = []
-    lst_avg = []
+    lst_abs_max = []
+    lst_abs_avg = []
+    lst_rel_avg = []
     tasks = []
     for idx in range(nb_stations):
         station_id = base_station_id = None
@@ -99,35 +103,33 @@ def benchmark_without_prices(nb_stations, dir_prices):
             base_station_id = np.random.choice(station_ids)
             base_station_row = stations[idx]
             station_id = Classifier.station_row2id(base_station_row, ignore_station=True)
-            #TEST:
-            #station_id = 14481
-            #base_station_id = 5898
-
-        tasks.append((station_id, dir_prices, base_station_id))
-
-
-        #print "id, base_id:", station_id, base_station_id
+        tasks.append((station_id, dir_prices, base_station_id, nb_predictions))
 
     pool = Configuration.get_instance().get_pool()
     if pool is not None:
         lst_res = pool.map(process_benchmark_station, tasks)
-        for res in lst_res:
-            min_, max_, avg = res
-            lst_min.append(min_)
-            lst_max.append(max_)
-            lst_avg.append(avg)
     else:
-        for task in tasks:
-            min_, max_, avg = process_benchmark_station(task)
-            lst_min.append(min_)
-            lst_max.append(max_)
-            lst_avg.append(avg)
-    min_ = min(lst_min)
-    max_ = max(lst_max)
-    avg = sum(lst_avg)/len(lst_avg)
-    printf("stations_without_prices: min: %s, max: %s, avg: %s: " % (min_, max_, avg))
+        lst_res = [process_benchmark_station(task) for task in tasks]
+    rows = []
+    for idx, res in enumerate(lst_res):
+        abs_max = int(ceil(res[0]))
+        abs_avg = int(ceil(res[1]))
+        rel_avg = round(res[2], 4)
+        lst_abs_max.append(abs_max)
+        lst_abs_avg.append(abs_avg)
+        lst_rel_avg.append(rel_avg)
+        rows.append((tasks[idx][-1], tasks[idx][0], abs_max, abs_avg, rel_avg))
+
+    g_abs_max = max(lst_abs_max)
+    g_abs_avg = sum(lst_abs_avg)/len(lst_abs_avg)
+    g_rel_avg = sum(lst_rel_avg)/len(lst_rel_avg) 
+    printf("stations_without_prices: max abs: %s, avg abs: %s, avg rel: %.3f: " % (g_abs_max, g_abs_avg, g_rel_avg))
 
 
-def process_benchmark(dir_prices, nb_stations=100):
-    benchmark_with_prices(nb_stations, dir_prices)
-    benchmark_without_prices(nb_stations, dir_prices)
+    out_filename = os.path.join(Configuration.get_instance().output_dir, "benchmark_without_prices.csv")
+    CSVDAO.export_to_csv(out_filename, rows, ["base_station_id", "used_station_id",  "abs error max", "avg abs err", "avg rel. err"])
+
+
+def process_benchmark(dir_prices, nb_stations=1, nb_predictions=5):
+    benchmark_with_prices(nb_stations, nb_predictions, dir_prices)
+    benchmark_without_prices(nb_stations, nb_predictions, dir_prices)

@@ -14,5 +14,7 @@ def generate_tank_infos(capacity, timestamps_stations_prices):
     g.goal = g.nodes[-1]
     g.find_nexts()
     g.find_prevs()
-    routing_infos = g.drive_to_next()
+    g.find_nexts()
+    g.find_prevs()
+    routing_infos = g.generate_refuel_infos()
     return routing_infos

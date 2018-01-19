@@ -3,7 +3,7 @@
 """utils.py - usefool tools"""
 import sys
 import os.path
-from .compat import printf
+from .compat import printf, str2unicode
 import logging
 #from .exceptions_ import (PriceNotFoundException, StationNotFoundException)
 
@@ -33,11 +33,11 @@ def str2longitude(value):
 
 def str2mark(value):
     """convert a str to unicode"""
-    return value.decode('utf8').lower()
+    return str2unicode(value)
 
 def str2town(value):
     """convert a str to unicode"""
-    return value.decode('utf8').lower()
+    return str2unicode(value)
 
 def str2zipcode(value):
     """convert a str to int"""
@@ -47,9 +47,6 @@ def str2zipcode(value):
         logging.warn("str2zipcode: <%s | %s>" % (value, err))
         return 0
 
-def str2unicode(value):
-    """convert a str to unicode"""
-    return value.decode('utf8')
 
 def create_file_dirs(filename):
     """create all directories contained in the tree to filename"""

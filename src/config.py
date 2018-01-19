@@ -19,7 +19,8 @@ class Configuration:
         #hourly intervalls to take into consideration for the model training
         self.time_bins = self.TIME_BINS
         #nb of worker processes
-        self.nb_workers = kwargs.get("nb_workers") or multiprocessing.cpu_count()
+        nb_workers = kwargs.get("nb_workers", multiprocessing.cpu_count())
+        self.nb_workers = multiprocessing.cpu_count() if not nb_workers else nb_workers
         if platform.system() in ("Windows",):
             if self.nb_workers > 1:
                 logging.warning("Multiprocessing not yet supported on this platform. Switching to Mono-processing")
@@ -57,6 +58,19 @@ class Configuration:
         self.file = kwargs.get("file")
         #logging level
         self.log_level = kwargs.get("log", None) or logging.WARNING
+        #user selected command
+        self.command = kwargs.get("command")
+
+        ## benchmark config
+        #number of predictions per station
+        self.nb_predictions = kwargs.get("nb_predictions", 5)
+        #number of stations to benchmark
+        self.nb_stations = kwargs.get("nb_stations", 100)
+        #force action
+        self.force = kwargs.get("force", False)
+
+        #path to the python executable
+        self.python = sys.executable
 
     @staticmethod
     def get_instance(**kwargs):

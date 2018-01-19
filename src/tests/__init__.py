@@ -1,12 +1,16 @@
 import logging
 import os
 import glob
+from copy import deepcopy
+
+import numpy as np
 
 from ..exceptions_ import (BadFormatException, BenzlimException)
 from ..compat import printf
 from ..config import Configuration
-from ..dao import CSVDAO
+from ..dao import CSVDAO, StationDAO
 from ..prediction import (process_predictions, process_routing)
+from ..routing import Graph, Node
 
 def diff_prices(data1, data2):
     if data1 and data2:
@@ -41,6 +45,41 @@ def get_predict_files_prices():
     return res
 
 
+def verify(route_filename, nb_runs=20):
+    route = CSVDAO.get_route_params(route_filename)
+    base_capacity, node_rows = route
+    max_tanked = -1
+    capacity = 2
+    base_g = Graph(base_capacity)
+    for timestamp, station_id in node_rows:
+        station_row = StationDAO.get(station_id)
+        n = Node(station_id, station_row[-4], station_row[-3], timestamp)
+        n.datetime = timestamp
+        n.set_price(int(np.random.uniform(1200, 1700)))
+        base_g.nodes.append(n)
+    base_g.nodes.sort(key=lambda gr:gr.datetime)
+    base_g.start = base_g.nodes[0]
+    base_g.goal = base_g.nodes[-1]
+
+    for i in range(nb_runs):
+        EPS = 1e-3
+        g = deepcopy(base_g)
+        g.capacity = capacity
+        g.find_prevs()
+        g.find_nexts()
+        infos = g.generate_refuel_infos()
+        tanked = sum(n.expected_amount for n in g.nodes)
+        price = sum(n.expected_amount*n.price for n in g.nodes)
+        if tanked +EPS < max_tanked:
+            printf("ERROR: You tanked only %f instead of at least %f while having more capacity %.2f, step: %s" % (tanked, max_tanked, capacity, i+1))
+            max_tanked = tanked
+            return
+        else:
+            max_tanked = tanked
+            #print "You tanked: %.2f with capacity: %.2f at: %d" % (tanked, g.capacity, price)
+        capacity += capacity/3.0
+
+
 def test_predict():
     predict_infos = get_predict_files_prices()
     config = Configuration.get_instance()
@@ -71,17 +110,18 @@ def test_predict():
 def test_route():
     routes_prices = get_route_files_prices()
     config = Configuration.get_instance()
-    for route, route_pred in routes_prices:
+    for r_file, r_pred_file in routes_prices:
         try:
-            #printf("File: %s" % route)
-            logging.debug("Route file: %s" % route)
-            res = process_routing(route, config.prices_dir, None, None, nb_workers=config.nb_workers)
+            logging.debug("Route file: %s" % r_file)
+            verify(r_file)
+            #res = process_routing(r_file, config.prices_dir, None, None, nb_workers=config.nb_workers)
         except BadFormatException as err:
-            assert "falsche" in route
+            assert "falsche" in r_file
         except BenzlimException as err:
             logging.error(err)
+
 
 def test():
     printf("Testing benzlim...")
     test_predict()
-    #test_route()
+    test_route()

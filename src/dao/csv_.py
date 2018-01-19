@@ -111,7 +111,7 @@ class CSVDAO(object):
         try:
             with codecs.open(filename, 'r') as input_f:
                 reader = csv.reader(input_f, dialect=None, delimiter=';')
-                return tuple((row[0], row[1], row[2]) for row in reader)
+                return tuple((row[0], row[1], int(row[2])) for row in reader)
         except IndexError as err:
             #logging.warn("%s | %s" % (err, filename))
             raise BadFormatException(filename)
@@ -126,7 +126,7 @@ class CSVDAO(object):
             with codecs.open(filename, 'r') as input_f:
                 capacity = int(input_f.readline())
                 reader = csv.reader(input_f, dialect=None, delimiter=';')
-                return capacity, tuple((row[0], row[1]) for row in reader)
+                return capacity, tuple((row[0], int(row[1])) for row in reader)
         except IndexError as err:
             #logging.warn("%s | %s" % (err, filename))
             raise BadFormatException(filename)
@@ -151,3 +151,14 @@ class CSVDAO(object):
         except IndexError as err:
             #logging.warn("%s | %s" % (err, filename))
             raise BadFormatException(filename)
+
+    @classmethod
+    def export_to_csv(cls, filename, rows, header=None):
+        """rows in the file <filename> as csv"""
+        with codecs.open(filename, 'w') as output_f:
+            writer = csv.writer(output_f, dialect=None, delimiter=';')
+            if header:
+                writer.writerow(header)
+            for row in rows:
+                writer.writerow(row)
+

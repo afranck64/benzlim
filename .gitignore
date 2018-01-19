@@ -14,4 +14,8 @@ env3/
 *.dump
 *.pkl
 *.DS_Store
+*.toc
+*.aux
+*.out
+*.coverage*
 **__pycache__

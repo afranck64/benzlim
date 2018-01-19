@@ -1,7 +1,8 @@
 import cPickle as pickle
 
 def printf(*args, **kwargs):
-    newline = kwargs.get('newline', True)
+    end = kwargs.get('end', '\n')
+    newline = (end == "\n")
     if args:
         if not newline:
             for i in args:
@@ -10,7 +11,12 @@ def printf(*args, **kwargs):
             for i in args[:-1]:
                 print i,
             print args[-1]
+        print end
     else:
-        if newline:
-            print '',
+        print end
+
+
+def str2unicode(value):
+    """convert a str to unicode"""
+    return value.decode('utf8')
 

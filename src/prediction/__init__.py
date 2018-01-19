@@ -11,18 +11,9 @@ from ..utils import create_file_dirs
 from ..routing import generate_tank_infos
 
 
-def initializer():
-    global config
-    config = Configuration.get_instance()
-
 def process_task(args):
-    #try:
     result = predict.predict_price(*args)
     return result
-    #except ValueError as err:
-    #    logging.error(err)
-    #    raise err
-    #    return 1
 
 def predict_prices_timestamps_x2_stations(timestamps_x2_stations, dir_prices, nb_workers=None):
     """return [<end_timestamp>, <timestamp>, <station_id>, <pred_price>],
@@ -72,9 +63,10 @@ def process_routing(filename, dir_prices, out_filename=None, gas_prices_file=Non
         routing_infos = CSVDAO.get_predicted_prices(gas_prices_file)
     #routing_infos: [<end_timestamp>, <timestamp>, <station_id>, <pred_price>]
 
-    #TODO check make sure the route and predictions match each oder
+    err = 0
     if len(timestamps_stations) != len(routing_infos):
         logging.error("ERROR! incompatible prediction file")
+        err = 1
     else:
         for idx, row in enumerate(routing_infos):
             row2 = timestamps_stations[idx]
@@ -82,17 +74,21 @@ def process_routing(filename, dir_prices, out_filename=None, gas_prices_file=Non
             timestamp2, station2 = row2[0], row2[1]
             if timestamp1 != timestamp2 or station1 != station2:
                 logging.error("ERROR! wrong match: timestamp/station")
-    
-    logging.debug("Routing infos")
-    logging.debug("\n".join(str(r) for r in routing_infos))
-    #res_infos: [<timestamp>, <station>, <pred_price>, <gas_quantity>
-    res_infos = generate_tank_infos(capacity, [row[1:] for row in routing_infos])
-    logging.debug("Graph_result! <capacity>: %s nb-stops: %s " % (capacity, len(routing_infos)))
-    logging.debug("Res_infos")
-    logging.debug("\n".join(str(r) for r in res_infos))
-    create_file_dirs(out_filename)
-    tank_price = sum(r[-2]*r[-1] for r in res_infos)
-    logging.debug("Tank price: %s" % tank_price)
+                err = 1
+                break
+    if not err:
+        logging.debug("Routing infos")
+        logging.debug("\n".join(str(r) for r in routing_infos))
+        #res_infos: [<timestamp>, <station>, <pred_price>, <gas_quantity>
+        res_infos = generate_tank_infos(capacity, [row[1:] for row in routing_infos])
+        logging.debug("Graph_result! <capacity>: %s nb-stops: %s " % (capacity, len(routing_infos)))
+        logging.debug("Res_infos")
+        logging.debug("\n".join(str(r) for r in res_infos))
+        create_file_dirs(out_filename)
+        tank_price = sum(r[-2]*r[-1] for r in res_infos)
+        logging.debug("Tank price: %s" % tank_price)
+    else:
+        res_infos = []
     with open(out_filename, 'w') as output_f:
         output_f.writelines("%s;%s;%s;%s\n"%(row) for row in res_infos)
     return res_infos

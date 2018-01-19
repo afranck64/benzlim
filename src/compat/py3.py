@@ -11,3 +11,8 @@ def printf(*args, **kwargs):
     else:
         if newline:
             print()
+
+
+def str2unicode(value):
+    """convert a str to unicode"""
+    return value

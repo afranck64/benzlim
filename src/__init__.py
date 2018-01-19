@@ -11,20 +11,22 @@ from .dao import CSVDAO
 from .config import Configuration
 from .prediction import (predict_prices_timestamps_x2_stations, process_predictions, process_routing)
 from .tests import test
+from .coverage import coverage
 
-_log_names = [key for key in sorted(logging._levelNames) if isinstance(key, (str, unicode))]
+_log_names = [logging.getLevelName(lvl) for lvl in (logging.DEBUG, logging.CRITICAL, logging.ERROR, logging.INFO, logging.WARNING, logging.NOTSET)]
 
 def main():
     parser = argparse.ArgumentParser(prog="python benzlim")
     subparsers = parser.add_subparsers(dest="command", help="commands")
+    fallback_dir = os.path.abspath(os.path.join(os.path.split(__file__)[0], "../../InformatiCup2018"))
 
     # A predict command
     predict_parser = subparsers.add_parser("predict", help="Prices prediction")
     predict_parser.add_argument("-o", "--output_file", action="store", help="output filename")
     predict_parser.add_argument("-n", "--nb-workers", action="store", type=int, help="number of workers, default: cpu_count")
     predict_parser.add_argument("--log", action="store", help="Loging level, default: WARNING, values: %s " % _log_names)
+    predict_parser.add_argument("--informaticup2018-dir", action="store", help="Path referring to the InformatiCup/InformatiCup2018 folder", default=fallback_dir)
     predict_parser.add_argument("file", action="store", help="input filename")
-    predict_parser.add_argument("informaticup2018_dir", action="store", help="Path referring to the InformatiCup/InformatiCup2018 folder")
     
     # A route command
     route_parser = subparsers.add_parser("route", help="Prices prediction and routing")
@@ -33,28 +35,34 @@ def main():
     route_parser.add_argument("-n", "--nb-workers", action="store", type=int, help="number of workers, default: cpu_count")
     route_parser.add_argument("-g", "--gas-prices-file", action="store", help="predicted gas prices file")
     route_parser.add_argument("--log", action="store", help="Loging level, default: WARNING, values: %s " % _log_names)
+    route_parser.add_argument("--informaticup2018-dir", action="store", help="Path referring to the InformatiCup/InformatiCup2018 folder", default=fallback_dir)
     route_parser.add_argument("file", action="store", help="input filename")
-    route_parser.add_argument("informaticup2018_dir", action="store", help="Path referring to the InformatiCup/InformatiCup2018 folder")
 
     # A train command
     train_parser = subparsers.add_parser("train", help="Training using available data")
     train_parser.add_argument("--log", action="store", help="Loging level, default: WARNING, values: %s " % _log_names)
-    train_parser.add_argument("informaticup2018_dir", action="store", help="Path referring to the InformatiCup/InformatiCup2018 folder")
+    train_parser.add_argument("--force", action="store_true", help="Force overwriting existing training data")
+    train_parser.add_argument("--informaticup2018-dir", action="store", help="Path referring to the InformatiCup/InformatiCup2018 folder", default=fallback_dir)
     
     # A test command
     test_parser = subparsers.add_parser("test", help="Test the program on some station and edge cases")
     test_parser.add_argument("-n", "--nb-workers", action="store", type=int, help="number of workers, default: cpu_count")
     test_parser.add_argument("--log", action="store", help="Loging level, default: WARNING, values: %s " % _log_names)
-    test_parser.add_argument("informaticup2018_dir", action="store", help="Path referring to the InformatiCup/InformatiCup2018 folder")
+    test_parser.add_argument("--informaticup2018-dir", action="store", help="Path referring to the InformatiCup/InformatiCup2018 folder", default=fallback_dir)
 
 
     # A benchmark command
     bench_parser = subparsers.add_parser("benchmark", help="Run light prediction benchmark")
     bench_parser.add_argument("-n", "--nb-workers", action="store", type=int, help="number of workers, default: cpu_count")
+    bench_parser.add_argument("--nb-predictions", action="store", type=int, help="number predictions per station, default: 5", default=5)
+    bench_parser.add_argument("--nb-stations", action="store", type=int, help="number of stations to benchmark, default: 100", default=100)
+    bench_parser.add_argument("--informaticup2018-dir", action="store", help="Path referring to the InformatiCup/InformatiCup2018 folder", default=fallback_dir)
     bench_parser.add_argument("--log", action="store", help="Loging level, default: WARNING, values: %s " % _log_names)
-    bench_parser.add_argument("informaticup2018_dir", action="store", help="Path referring to the InformatiCup/InformatiCup2018 folder")
 
-
+    # A coverage command
+    coverage_parser = subparsers.add_parser("coverage", help="Create coverage benchmarking data under the folder 'htmlcov'")
+    coverage_parser.add_argument("--log", action="store", help="Loging level, default: WARNING, values: %s " % _log_names)
+    coverage_parser.add_argument("--informaticup2018-dir", action="store", help="Path referring to the InformatiCup/InformatiCup2018 folder", default=fallback_dir)
 
     args = parser.parse_args()
     if args.log:
@@ -71,15 +79,19 @@ def main():
             parser.error("argument file: file <%s> not found" % args.file)
         if args.output_file and not os.path.exists(args.output_file):
             parser.error("argument output_file: file <%s> not found" % args.output_file)
-        if not os.path.exists(args.informaticup2018_dir):
-            parser.error("argument informaticup2018_dir: directory <%s> not found" % args.informaticup2018_dir)
-    if args.command in ("route",):
+    if args.command in ("route"):
         if args.gas_prices_file is not None:
             if not os.path.exists(args.gas_prices_file):
                 parser.error("argument -g/--gas-prices_file: file <%s> not found" % args.gas_prices_file)
+    if not os.path.exists(args.informaticup2018_dir):
+        parser.error("argument --informaticup2018-dir: directory <%s> not found" % args.informaticup2018_dir)
 
     Configuration.config(**vars(args))
     config = Configuration.get_instance()
+
+    #
+    if (args.command not in ("train", "coverage")):
+        Trainer.autotrain()
     if args.command == "predict":
         process_predictions(config.file, config.prices_dir, config.output_file, config.nb_workers)
     elif args.command == "route":
@@ -89,4 +101,6 @@ def main():
     elif args.command == "test":
         test()
     elif args.command == "benchmark":
-        process_benchmark(config.prices_dir)
+        process_benchmark(config.prices_dir, config.nb_stations, config.nb_predictions)
+    elif args.command == "coverage":
+        coverage()

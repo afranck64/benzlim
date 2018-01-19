@@ -12,6 +12,7 @@ from ..exceptions_ import (BadFormatException, BadValueException)
 from ..dao import CSVDAO, StationDAO
 from .classification import Classifier
 
+MAX_MARGIN_COEF = 0.2
 
 warnings.simplefilter('ignore', np.RankWarning)
 warnings.simplefilter(action='ignore', category=FutureWarning)
@@ -44,57 +45,6 @@ def get_time_range(timestamp):
                 break
     return begin, end
 
-
-
-
-class Predictor(object):
-    def __init__(self, full_predictor=None, full_converter=None, year_predictor=None, month_predictor=None, week_predictor=None, day_predictor=None, hour_predictor=None, min_predictor=None):
-        """
-        full_predictor: <callable> return the complete prediction for a given timestamp
-        year_predictor: <callable> return the corresponding yearly average price
-        month_predictor: <callable> return the month relative average (from the year)
-        week_predictor: <callable> return the corresponding relative average (from the month)
-        day_predictor: <callable> the relative day predictor
-        hour_predictor: <callable> a relative hour averag predictor
-        min_predictor: <callable> a relative minutes predictor
-
-        if full_predictor: is submitted, it is used for the prediction
-        """
-        self.year_predictor = year_predictor
-        self.month_predictor = month_predictor
-        self.week_predictor = week_predictor
-        self.day_predictor = day_predictor
-        self.hour_predictor = hour_predictor
-        self.min_predictor = min_predictor
-        self.full_predictor = full_predictor
-        self.full_converter = full_converter
-
-    def predict(self, timestamp):
-        """Return the predicted price at the timestamp <dt>
-        timestamp: <str|pd.Timestamp|np.datetime64|datetime> the timestamp"""
-        if self.full_predictor is not None:
-            if self.full_converter is not None:
-                return self.full_predictor(self.full_converter(timestamp))
-            return self.full_predictor(timestamp)
-        res_price = 0
-        dt = pd.Timestamp(timestamp)
-        if self.year_predictor is not None:
-            res_price += self.year_predictor(get_time(dt, 'Y'))
-        if self.month_predictor is not None:
-            res_price += self.month_predictor(get_time(dt, 'M'))
-        if self.week_predictor is not None:
-            res_price += self.week_predictor(get_time(dt, 'W'))
-        if self.day_predictor is not None:
-            res_price += self.day_predictor(get_time(dt, 'D'))
-        if self.hour_predictor is not None:
-            res_price += self.hour_predictor(get_time(dt, 'H'))
-        if self.min_predictor is not None:
-            res_price += self.min_predictor(get_time(dt, 'T'))
-        return res_price
-
-    def __call__(self, timestamp):
-        """callable interface to the predict method"""
-        return self.predict(timestamp)
 
 def get_freq_avg(ts, freq="10T", fill_method='pad', fill_method2=None):
     """resample the timeserie with the new frequence <freq> using the fill methods for NANs"""
@@ -194,7 +144,6 @@ def get_price_predictor(station_id, dir_prices, ts=None, time_begin=None, time_e
     hour_rel_predictor = None
     min_rel_predictor = None
 
-    #print "TS: ", ts.groupby(pd.TimeGrouper("M"))
     ts = ts.resample("30T", level=0).dropna()
     ts_year = get_freq_avg(ts.drop_duplicates(), 'Y').tail(NB_YEARS).fillna(method='bfill')
     ts_month = get_freq_avg(ts, 'M').tail(NB_MONTHS).fillna(method='bfill').fillna(ts_year.values.flat[-1])
@@ -236,7 +185,6 @@ def get_price_predictor(station_id, dir_prices, ts=None, time_begin=None, time_e
     else:
         stddev = 1
     def predictor_full(timestamp):
-        margin_coef = 0.20
         timestamp = pd.Timestamp(timestamp)
         res = year_avg_predictor(get_time(timestamp, 'Y'))\
                 + month_rel_predictor(get_time(timestamp, 'M'))\
@@ -245,7 +193,7 @@ def get_price_predictor(station_id, dir_prices, ts=None, time_begin=None, time_e
                 + hour_rel_predictor(get_time(timestamp, 'H'))\
                 + min_rel_predictor(get_time(timestamp, 'T'))
         res = int(round(res))
-        if avg is not None and abs(res - avg) >avg*margin_coef:
+        if avg is not None and abs(res - avg) >avg*MAX_MARGIN_COEF:
             return avg, stddev/avg
         else:
             return res, stddev/avg
@@ -302,9 +250,8 @@ def get_price_predictor2(station_id, dir_prices, ts=None, time_begin=None, time_
     
 
     def predictor_full(timestamp):
-        margin_coef = 0.2
         res = int(predictor_f(pd.Timestamp(timestamp).to_datetime64().astype(int)))
-        if abs(res-avg) > avg*margin_coef:
+        if abs(res-avg) > avg*MAX_MARGIN_COEF:
             return avg, stddev/avg
         else:
             return res, stddev/avg
@@ -330,28 +277,13 @@ def predict_price(station_id, timestamp, end_train_timestamp, dir_prices, bench_
         pred2, coef2 = predictor2(timestamp)
         coef1 = 1-coef1
         coef2 = 1-coef2
-        #print int((pred1*coef1 + pred2*coef2)/(coef1+coef2)), (pred1+pred2)/2
         return int((pred1*coef1 + pred2*coef2)/(coef1+coef2))
-        #return (pred1+pred2)/2
-    #except TypeError as err:
-    #    raise BadValueException(err)
     except ValueError as err:
         logging.debug(err)
         raise BadValueException("Not enough values")
     except pd.errors.OutOfBoundsDatetime as err:
         raise BadValueException(err)
 
-def timestamp2int8(timestamp):
-    return pd.Timestamp(timestamp).to_datetime64().astype(int)
-
-def save_predictor(station_id, dir_prices):
-    ts = CSVDAO.get_station_dataframe(station_id, dir_prices)
-    predictor = get_price_predictor(station_id, ts)
-    instance_predictor = Predictor(full_predictor=predictor, full_converter=timestamp2int8)
-    PATH = "resources/predictors"
-    filename = os.path.join(PATH, str(station_id) + ".pred")
-    with open(filename, "w") as out_f:
-        pickle.dump(instance_predictor, out_f)
-        
+  
 if __name__ == "__main__":
     pass

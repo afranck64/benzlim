@@ -43,7 +43,7 @@ Benzinpreisänderungen am Tag sind unabhängig von der Marke
 
 ## Ansatz
 
-Um die Preise vorhersagen zu können werden die durchschnittlichen Benzinpreise in bestimmten Zeitspannen (Jährlich, Monatlich, Wöchentlich, Täglich, Stündlich, Minütlich) berechnet. Die erzeugten Daten werden zu einem Extrapolator übergeben, der einen Prädiktor für die Differenz zwischen der jeweiligen Zeiteinheit und die höheren Zeiteinheiten erzeugt. Der grundlagende Prädiktor summiert die durchschnittlichen jährlichen Prädiktionen mit die montalichen, wöchentlichen, täglichen, stündlichen und minutlichen Prädiktion auf und erzeugt die Vorhersage.
+Um die Preise vorhersagen zu können werden die durchschnittlichen Benzinpreise in bestimmten Zeitspannen (Jährlich, Monatlich, Wöchentlich, Täglich, Stündlich, Minütlich) berechnet. Die erzeugten Daten werden zu einem Extrapolator übergeben, der einen Prädiktor für die Differenz zwischen der jeweiligen Zeiteinheit und die höheren Zeiteinheiten erzeugt. Der grundlagende Prädiktor summiert die durchschnittlichen jährlichen Prädiktionen mit die montalichen, wöchentlichen, täglichen, stündlichen und minütlichen Prädiktion auf und erzeugt die Vorhersage.
 
 ### Training
 
@@ -71,7 +71,7 @@ Pro Vorhersage wird ein Model trainiert.
 * "monthly_rel", "weekly_rel", "daily_rel", "hourly_rel" und "min_rel" sind die Differenz zwischen jeweils den durchschnittlichen monatlichen, wöchentlichen, täglichen und stündlichen Preisen und den durchschnittlichen Preisen der höheren Zeiteinheit.
 * "yearly_avg" wird zu einem Extrapolator übergeben, der ein Prädiktor für den jährlichen Durchschnittspreis erzeugt. Jede "_rel" Tabelle wird durch die Berechnung der Differenz zwischen dem passenden "_avg" und die Summe der Prädiktionen der höheren Zeiteinheiten erzeugt.
 * Alle "_rel" werden zu einem Extrapolator übergeben, der einen Prädiktor für die Differenz zwischen der jeweiligen Zeiteinheit und die höheren Zeiteinheiten erzeugt.
-* Der grundlagende Prädiktor summiert die durchschnittlichen jährlichen Prädiktionen mit die montalichen, wöchentlichen, täglichen, stündlichen und minutlichen Prädiktion auf und erzeugt die Vorhersage.
+* Der grundlagende Prädiktor summiert die durchschnittlichen jährlichen Prädiktionen mit die montalichen, wöchentlichen, täglichen, stündlichen und minütlichen Prädiktion auf und erzeugt die Vorhersage.
 
 
 ![predictor](images/predictor.png)

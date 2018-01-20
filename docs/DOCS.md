@@ -24,7 +24,7 @@ InformatiCup 2018 - Benzlim
 
 ## Analyse
 
-* **Benzinpreiseentwicklung**
+* **Benzinpreisentwicklung**
 
 * **Benzinpreisunterschiede**
 
@@ -69,15 +69,16 @@ So ist unser Ansatz für das bla bla bla bla
 
 ### Training
 
-Die Daten werden gereinigt und optimal gespeichert für ihre weitere Verarbeitung. Für einen optimalen Zugriff auf Daten in folgenden Schritten, wird in der Trainingsphase eine lokale Datenbank mit Stationinformationen erzeugt. Die Stationinformationen werden um die Verfügbarkeit der Preise , sowie das Datum der Verfügbarkeit vom ersten gemelden Preis erweitert.
+Für ihre weitere Verarbeitung werden die Daten gereinigt und optimal gespeichert. Um auf die Daten optimal zugreifen zu können, werden wird in der Trainingsphase die folgenden Schritte durchgeführt: 
+1. Eine lokale Datenbank mit Stationinformationen wird erzeugt.
+2. Die Stationinformationen werden um die Verfügbarkeit der Preise, sowie das Datum der ersten gemeldeten Preis erweitert.
 
 ### Vorhersage
 
-#### Klassifiezierung
+#### Klassifizierung
 
-Seien $S$ die Menge aller bekannten Stationen und $S_p$ die Menge aller Stationen mit Preisinformationen.
-
-Die Klassifizierung gibt für eine Station $s \in S$ die passendste Station $s_p \in S_p$.
+"S" ist die Menge aller bekannten Stationen und "S~p~" ist die Menge aller Stationen sowie die dazugehörigen Preisinformationen.
+Die Klassifizierung gibt für eine Station "s" in "S" die passendste Station "s~p~" in "S~p~".
 
 ![classifier](images/classifier.png)
 
@@ -87,12 +88,12 @@ Die Klassifizierung gibt für eine Station $s \in S$ die passendste Station $s_p
 
 Pro Vorhersage wird ein Model trainiert.
 
-* Es werden Preise selektiert, die in dem gleichen Stundenzeitlot sind, wie der Zeitstempel für die Prädiktion
-* Seien $yearly\_avg$,  $monthly\_avg$, $weekly\_avg$, $daily\_avg$, $hourly\_avg$ und $min\_avg$ jeweils die  jährlichen, monalichen, wochentlichen, täglichen und stündlichen durchschnittlichen Preise.
-* Seien $monthly\_rel$, $weekly\_rel$, $daily\_rel$, $hourly\_rel$ und $min\_rel$ Unterschied zwischen jeweils den monalichen, wochentlichen, täglichen und stündlichen durchschnittlichen Preisen und den durchschnittlichen Preisen der höheren Zeiteinheit.
-* $yearly\_avg$ wird zu einem Extrapolator übergeben, der ein Prädiktor für ein für den jährlichen durschnttlichen Preis erzeugt. Jede $*\_rel$  Tabelle berechnet sich aus die Unterschiede zwischen dem passenden $*\_avg$ und die Summe der Prädiktionen der höheren Zeiteinheiten.
-* Alle $*\_rel$ werden zu einem Extrapolator übergeben, der ein Prädiktor für den Unterschied zwischen der jeweiligen Zeitheinheit und die höheren erzeugt.
-* Der grundlagende Prädiktor summiert die durchschnittle jährliche Prädiktion und relative montaliche, wochentliche, tägliche, stündliche und minutliche Prädiktion.
+* Es werden Preise ausgewählt, die in dem gleichen Stundenzeitslot sind, wie der Zeitstempel für die Vorhersage.
+* "yearly_avg",  "monthly_avg", "weekly_avg", "daily_avg", "hourly_avg" und "min_avg" sind jeweils die  jährlichen, monatlichen, wöchentlichen, täglichen und stündlichen durchschnittlichen Preise.
+* "monthly_rel", "weekly_rel", "daily_rel", "hourly_rel" und "min_rel" sind die Differenz zwischen jeweils den durchschnittlich monatlichen, wöchentlichen, täglichen und stündlichen Preise und den durchschnittlichen Preisen der höheren Zeiteinheit.
+* "yearly_avg" wird zu einem Extrapolator übergeben, der ein Prädiktor für den jährlichen Durchschnittspreis erzeugt. Jede "_rel" Tabelle wird durch die Berechnung der Differenz zwischen dem passenden "_avg" und die Summe der Prädiktionen der höheren Zeiteinheiten erzeugt.
+* Alle "_rel" werden zu einem Extrapolator übergeben, der einen Prädiktor für die Differenz zwischen der jeweiligen Zeiteinheit und die höheren Zeiteinheiten erzeugt.
+* Der grundlagende Prädiktor summiert die durchschnittlichen jährlichen Prädiktionen mit die montalichen, wöchentlichen, täglichen, stündlichen und minutlichen Prädiktion auf und erzeugt die Vorhersage.
 
 
 
@@ -100,8 +101,8 @@ Pro Vorhersage wird ein Model trainiert.
 
 #### Korrektion
 
-- Ein Subprädiktor, der alle Preise hat und 
-- Es wird den Durschnitt der benutzen Preisen berechnett, der als Fallback benutzt wird, wenn der prädizierte Preis schänkt von mehr als 20% vom ihm.
+* Ein Subprädiktor, mit allen gespeicherten Preisen
+* Wenn die berechnete Vorhersage eine Abweichung von 20%+ von dem Durchschnittspreis hat, wird der Durchschnittspreis als alternative ausgewählt.
 
 ### Routing
 
@@ -112,29 +113,29 @@ Pro Vorhersage wird ein Model trainiert.
 
 ## Auswertung
 
-Wir haben uns entschieden, für die Auswertung uns um die Vorhersagen zu konzentrieren.
+Für die Auswertung wurde entschieden dass wir uns auf die Vorhersagen konzentrieren.
+Ausgewertet sind sowohl Stationen mit verfügbaren Preisinformationen als auch Stationen die keine Daten zu deren Preisen zur verfügung gestellt haben.
 
-Ausgewertet werden Vorhersagen mit verfügbaren Preise der jeweiligen Station und Vorhersagen ohne verfügbare Preise der jeweiligen Station.
+* Vorhersagen mit verfügbaren Preisen
 
-* Vorhersage mit verfügbare Preise
+  Wir haben 1000 Stationen mit verfügbaren Preisinformationen ausgewählt und für jede dieser Stationen einen Zufallsdatum erzeugt.
+  Mit der o. g. Informationen wurden 16 Vorhersagen mit jeweils unterschiedlichen Enddaten für das Training durchgeführt. Für jede Station wurde die maximalen und durchschnittlichen absoluten Fehler sowie die relativen durchschnittlichen Fehler gemessen.
 
-  Wir haben 1000 Stationen mit Preisen ausgewählt und für jede Station ein Datum ausgweählt, aus dem 16 Mal vorhergesagt wurde, mit unterschiedlen Enddatum fürs Training. Für jede Station wurde den  maximalen und durchschnittlichen absoluten Fehler sowie den relativen durchschnittlichen Fehler gemessen.
+* Vorhersagen ohne verfügbare Preise
 
-* Vorhersage ohne verfügbare Preise
-
-  Wir haben 1000 Stationen mit Preise ausgewählt und für jede Station ein Prediktor mit einer aternative Station vom Klassifier gegeben trainiert und 16 Mal Preise Vorhergesagt. Die Preise der originalen Station wurden benuzt als Referenzwerte für die Berechnung der Fehler. Für jede Station wurde den  maximalen und durchschnittlichen absoluten Fehler sowie den relativen durchschnittlichen Fehler gemessen.
-
+  Wir haben 1000 Stationen mit verfügbaren Preisinformationen ausgewählt und für jede dieser Stationen einen Prediktor mit einer alternativen Station vom Klassifier ausgesucht.
+  Mit der o. g. Informationen wurden 16 Vorhersagen durchgeführt. Diesbezüglich wurden die Preise der originalen Stationen als Bezugswert für die Berechnung der Fehler benutzt. Für jede Station wurde die maximalen und durchschnittlichen absoluten Fehler sowie die relativen durchschnittlichen Fehler gemessen.
 
 
 Der Benchmark wurde mit folgender Anweisung ausgeführt:
 
-`python benzlim benchmark --nb_stations 1000 --nb_predictions 16
+`python benzlim benchmark --nb_stations 1000 --nb_predictions 16`
 
-Es werden danach zwei Dateien `benchmark_with_prices.csv ` und `benchmark_without_prices.csv` in `benzlim\out\` gespeichert.
+Es werden danach zwei Dateien `benchmark_with_prices.csv` und `benchmark_without_prices.csv` in `benzlim\out\` gespeichert.
 
-Ein Abschnit aus den Ergibnissen ist in folgenden Tabellen gelistet, wo  $e$ der Unterschied zwischen einen prädizierten Preis $p_p$ und den Referenzpreis $p_r$.
+Ein Abschnitt aus den Ergebnissen ist in der folgenden Tabelle aufgelistet. Hier ist "e" die Differenz zwischen der vorhergesagten Preis "p~p~" und der Referenzpreis "p~r~".
 
-* **Vorhersagen mit verfübare Preise**
+* **Vorhersagen mit verfügbaren Preisen**
 
 | station_id       | 6421  | 14554  | 6799   | 5049   | 10823  | 79     | 3607   | 12682  | 2885   |
 | ---------------- | ----- | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
@@ -152,16 +153,14 @@ Ein Abschnit aus den Ergibnissen ist in folgenden Tabellen gelistet, wo  $e$ der
 | $avg(\|e\|/p_r)$ | 0.0209 | 0.0238 | 0.0144 | 0.0303 | 0.0325 | 0.0082 | 0.012 | 0.0124 | 0.0178 |
 
 
-
-Im Durchschnitt haben Vorhersagen mit Preisen einen alsoluten Fehler zwischen 25 und 40. Absolute Fehler der Vorhersagen ohne Preise bewegen sich im selben Interval.
-
+Im Durchschnitt haben Preisvorhersagen für sowohl Stationen mit Preisinformationen als auch Stationen ohne Preisinformationen eine absolute Fehlerrate von 25 bis 40.
 
 
-#### Benkannte Probleme
+#### Bekante Probleme
 
-* Der Speicherverbrauch ist proportionnel zur Anzahl der Prozessorkerne und kann zu Problemen führen beim Benchmarking
-* Die Tankstrategie ist in ca. 5% der Fälle Inkonsistenz
-* Multiprozessing führt zu Fehlern unter Windows. Auf die Platform wird nur Monoprozessing angewendet
+* Der Speicherverbrauch ist proportionnel zur Anzahl der Prozessorkerne und kann beim Benchmarking zu Problemen führen
+* Die Tankstrategie ist in ca. 5% der Fälle Inkonsistent
+* "Multiprocessing" führt unter Windows zu Fehlern. Dementsprechend wird für Windows nur "Monoprocessing" verwendet
 
 ## Abschluss
 

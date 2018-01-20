@@ -28,7 +28,7 @@
 ## Run
 
    From the `InformatiCup` directory, run the command: `python benzlim -h` to get detailled help.  
-   if your `InformatiCup2018` is not located in the same directory as `benzlim`, you need to provide the optional argument `--informaticup2018-dir` refering to it.  
+   If your `InformatiCup2018` folder is not located in the same directory as `benzlim`, you need to provide the optional argument `--informaticup2018-dir` when referring to it.  
    On the first run, the data will be trained, which can take some time.
 
 ### Predict
@@ -43,7 +43,7 @@
 
 - `python benzlim route -g $predicted_prices $route_file`
 
-### Train model
+### Train the model
 
 - `python benzlim train --force`
 

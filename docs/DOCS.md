@@ -3,22 +3,11 @@ InformatiCup 2018 - Benzlim
 ------------------------------------------------------------
 
 **Franck Awounang Nekdem**,  **Gerald Wiese**,  **Amin Akbariazirani** und **Lea Evers**
-
-
-
-
-
 </header>
-
-
 
 <main>
 
-
-
 [TOC]
-
-
 
 ## Einführung
 
@@ -30,23 +19,13 @@ InformatiCup 2018 - Benzlim
 
   Der Preisunterschied vom Benzin ist getrieben von der Marke.
 
-
-
-
-
  ![infografik-das-auf-und-ab-der](images/infografik-das-auf-und-ab-der.jpg)
 
 *Quelle:* [Frankfurt Allgemeine Zeitung][faz_preis_zyklen] 
 
-
-
-
-
 ![infografik-das-auf-und-ab-der_2](images/infografik-das-auf-und-ab-der_2.jpg)
 
 *Quelle:* [Frankfurt Allgemeine Zeitung][faz_preis_zyklen]
-
-
 
 ![benzin_preise_daily](images/benzin_preise_daily.jpg)
 
@@ -59,26 +38,22 @@ Benzinpreisänderungen am Tag sind unabhängig von der Marke
 [blabla]: demo
 [hello]: https://www.focus.de/auto/praxistipps/benzinpreise-guenstig-tanken-zur-richtigen-zeit-am-richtigen-ort_id_4902163.html
 
-
-
-[][]
-
 ## Ansatz
 
 So ist unser Ansatz für das bla bla bla bla
 
 ### Training
 
-Für ihre weitere Verarbeitung werden die Daten gereinigt und optimal gespeichert. Um auf die Daten optimal zugreifen zu können, werden in der Trainingsphase die folgenden Schritte durchgeführt: 
-1. Eine lokale Datenbank mit Stationinformationen wird erzeugt.
-2. Die Stationinformationen werden um die Verfügbarkeit der Preise, sowie das Datum der ersten gemeldeten Preis erweitert.
+Für die weitere Verarbeitung werden die Daten gereinigt und optimal gespeichert. Um auf die Daten optimal zugreifen zu können, werden in der Trainingsphase die folgenden Schritte durchgeführt: 
+1. Eine lokale Datenbank mit Stationinformationen wird erzeugt
+2. Die Stationinformationen werden um die Verfügbarkeit der Preise, sowie das Datum des ersten gemeldeten Preises erweitert.
 
 ### Vorhersage
 
 #### Klassifizierung
 
-"S" ist die Menge aller bekannten Stationen und "S~p~" ist die Menge aller Stationen sowie die dazugehörigen Preisinformationen.
-Die Klassifizierung gibt für eine Station "s" in "S" die passendste Station "s~p~" in "S~p~".
+"S" ist die Menge aller bekannten Stationen und "S<sub>p</sub>" ist die Menge aller Stationen sowie die dazugehörigen Preisinformationen.
+Die Klassifizierung gibt für eine Station "s" in "S" die passendste Station "s<sub>p</sub>" in "S<sub>p</sub>" aus.
 
 ![classifier](images/classifier.png)
 
@@ -89,12 +64,11 @@ Die Klassifizierung gibt für eine Station "s" in "S" die passendste Station "s~
 Pro Vorhersage wird ein Model trainiert.
 
 * Es werden Preise ausgewählt, die in dem gleichen Stundenzeitslot sind, wie der Zeitstempel für die Vorhersage.
-* "yearly_avg",  "monthly_avg", "weekly_avg", "daily_avg", "hourly_avg" und "min_avg" sind jeweils die  jährlichen, monatlichen, wöchentlichen, täglichen und stündlichen durchschnittlichen Preise.
-* "monthly_rel", "weekly_rel", "daily_rel", "hourly_rel" und "min_rel" sind die Differenz zwischen jeweils den durchschnittlich monatlichen, wöchentlichen, täglichen und stündlichen Preise und den durchschnittlichen Preisen der höheren Zeiteinheit.
+* "yearly_avg", "monthly_avg", "weekly_avg", "daily_avg", "hourly_avg" und "min_avg" sind jeweils die jährlichen, monatlichen, wöchentlichen, täglichen und stündlichen durchschnittlichen Preise.
+* "monthly_rel", "weekly_rel", "daily_rel", "hourly_rel" und "min_rel" sind die Differenz zwischen jeweils den durchschnittlichen monatlichen, wöchentlichen, täglichen und stündlichen Preisen und den durchschnittlichen Preisen der höheren Zeiteinheit.
 * "yearly_avg" wird zu einem Extrapolator übergeben, der ein Prädiktor für den jährlichen Durchschnittspreis erzeugt. Jede "_rel" Tabelle wird durch die Berechnung der Differenz zwischen dem passenden "_avg" und die Summe der Prädiktionen der höheren Zeiteinheiten erzeugt.
 * Alle "_rel" werden zu einem Extrapolator übergeben, der einen Prädiktor für die Differenz zwischen der jeweiligen Zeiteinheit und die höheren Zeiteinheiten erzeugt.
 * Der grundlagende Prädiktor summiert die durchschnittlichen jährlichen Prädiktionen mit die montalichen, wöchentlichen, täglichen, stündlichen und minutlichen Prädiktion auf und erzeugt die Vorhersage.
-
 
 
 ![predictor](images/predictor.png)
@@ -107,33 +81,32 @@ Pro Vorhersage wird ein Model trainiert.
 ### Routing
 
 
-
 ## Ergebnisse
 
 
 ## Auswertung
 
-Für die Auswertung wurde entschieden dass wir uns auf die Vorhersagen konzentrieren.
+Bei der Auswertung liegt der Fokus auf die vorhersage der Preise.
 Ausgewertet sind sowohl Stationen mit verfügbaren Preisinformationen als auch Stationen die keine Daten zu deren Preisen zur verfügung gestellt haben.
 
 * Vorhersagen mit verfügbaren Preisen
 
   Wir haben 1000 Stationen mit verfügbaren Preisinformationen ausgewählt und für jede dieser Stationen einen Zufallsdatum erzeugt.
-  Mit der o. g. Informationen wurden 16 Vorhersagen mit jeweils unterschiedlichen Enddaten für das Training durchgeführt. Für jede Station wurde die maximalen und durchschnittlichen absoluten Fehler sowie die relativen durchschnittlichen Fehler gemessen.
+  Mit der o. g. Informationen wurden 16 Vorhersagen mit jeweils unterschiedlichen Enddaten für das Training durchgeführt. Für jede Station wurden die maximalen und durchschnittlichen absoluten Fehler sowie die relativen durchschnittlichen Fehler gemessen.
 
 * Vorhersagen ohne verfügbare Preise
 
   Wir haben 1000 Stationen mit verfügbaren Preisinformationen ausgewählt und für jede dieser Stationen einen Prediktor mit einer alternativen Station vom Klassifier ausgesucht.
-  Mit der o. g. Informationen wurden 16 Vorhersagen durchgeführt. Diesbezüglich wurden die Preise der originalen Stationen als Bezugswert für die Berechnung der Fehler benutzt. Für jede Station wurde die maximalen und durchschnittlichen absoluten Fehler sowie die relativen durchschnittlichen Fehler gemessen.
+  Mit der o. g. Informationen wurden 16 Vorhersagen durchgeführt. Diesbezüglich wurden die Preise der originalen Stationen als Bezugswert für die Berechnung der Fehler benutzt. Für jede Station wurden die maximalen und durchschnittlichen absoluten Fehler sowie die relativen durchschnittlichen Fehler gemessen.
 
 
 Der Benchmark wurde mit folgender Anweisung ausgeführt:
 
 `python benzlim benchmark --nb_stations 1000 --nb_predictions 16`
 
-Es werden danach zwei Dateien `benchmark_with_prices.csv` und `benchmark_without_prices.csv` in `benzlim\out\` gespeichert.
+Durch die Ausführung der o. g. Anweisung werden die zwei Dateien `benchmark_with_prices.csv` und `benchmark_without_prices.csv` in `benzlim\out\` gespeichert.
 
-Ein Abschnitt aus den Ergebnissen ist in der folgenden Tabelle aufgelistet. Hier ist "e" die Differenz zwischen der vorhergesagten Preis "p~p~" und der Referenzpreis "p~r~".
+Ein Abschnitt aus den Ergebnissen ist in der folgenden Tabelle aufgelistet. Hier ist "e" die Differenz zwischen der vorhergesagten Preisen "p<sub>p</sub>" und der Referenzpreis "p<sub>r</sub>".
 
 * **Vorhersagen mit verfügbaren Preisen**
 
@@ -155,7 +128,6 @@ Ein Abschnitt aus den Ergebnissen ist in der folgenden Tabelle aufgelistet. Hier
 
 Im Durchschnitt haben Preisvorhersagen für sowohl Stationen mit Preisinformationen als auch Stationen ohne Preisinformationen eine absolute Fehlerrate von 25 bis 40.
 
-
 #### Bekante Probleme
 
 * Der Speicherverbrauch ist proportionnel zur Anzahl der Prozessorkerne und kann beim Benchmarking zu Problemen führen
@@ -169,11 +141,8 @@ Im Durchschnitt haben Preisvorhersagen für sowohl Stationen mit Preisinformatio
 ### Ausblick
 
 
-
-
 </main>
 
-<bold>hello</bold>
 
 [^fn][msk_dritter_jahr]
 

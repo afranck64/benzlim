@@ -11,13 +11,16 @@ InformatiCup 2018 - Benzlim
 
 ## Einführung
 
+Die Tankstrategie ist ein wichtiger Bestandteil jeder Reise. Wann, an welcher Tankstelle und wie viel Tanken zu müssen um am günstigsten und effizientesten ans Ziel zu gelangen macht auf lange Sicht einen großen finanziellen Unterschied.
+Benzlim ist eine Python basierte Software Lösung die Verbraucher und Entwickler nutzen können, um Benzinpreise vorherzusagen und den Effizientesten Tankstrategie zu erstellen.
+
 ## Analyse
 
 * **Benzinpreisentwicklung**
 
 * **Benzinpreisunterschiede**
 
-  Der Preisunterschied vom Benzin ist getrieben von der Marke.
+  Der entscheidende Faktor für den Preisunterschied der verscheidenen Tankstellen ist die Marke.
 
  ![infografik-das-auf-und-ab-der](images/infografik-das-auf-und-ab-der.jpg)
 
@@ -40,7 +43,7 @@ Benzinpreisänderungen am Tag sind unabhängig von der Marke
 
 ## Ansatz
 
-So ist unser Ansatz für das bla bla bla bla
+Um die Preise vorhersagen zu können werden die durchschnittlichen Benzinpreise in bestimmten Zeitspannen (Jährlich, Monatlich, Wöchentlich, Täglich, Stündlich, Minütlich) berechnet. Die erzeugten Daten werden zu einem Extrapolator übergeben, der einen Prädiktor für die Differenz zwischen der jeweiligen Zeiteinheit und die höheren Zeiteinheiten erzeugt. Der grundlagende Prädiktor summiert die durchschnittlichen jährlichen Prädiktionen mit die montalichen, wöchentlichen, täglichen, stündlichen und minutlichen Prädiktion auf und erzeugt die Vorhersage.
 
 ### Training
 
@@ -80,6 +83,7 @@ Pro Vorhersage wird ein Model trainiert.
 
 ### Routing
 
+Basierend auf die Entfernung bis zur nächsten günstigsten Tankstelle und die Tankkapazität des Autos, wird die richtige Strecke und der zutankende Menge, berechnet.
 
 ## Ergebnisse
 
@@ -136,10 +140,9 @@ Im Durchschnitt haben Preisvorhersagen für sowohl Stationen mit Preisinformatio
 
 ## Abschluss
 
-
-
 ### Ausblick
 
+Benzlim ist der Stützpunkt für viele weitere Projekte die ein Effizienteres Routing für Autofahrer erbringen können. Diese wären bessere Routingalgorithmen, Reiseplanung Software usw.
 
 </main>
 

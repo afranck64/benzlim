@@ -16,7 +16,7 @@
 
 - Create a folder named `InformatiCup`
 - Inside the `InformatiCup` folder, clone the official InformatiCup2018 project from the link [InformatiCup2018](https://github.com/InformatiCup/InformatiCup2018 ) inside a new folder named `InformtatiCup2018`
-- Extract `benzlim's` zip file into a new folder named `benzlim`
+- Inside the `InformatiCup` folder, copy `benzlim` into a new folder named `benzlim`
 
 ### Run
 

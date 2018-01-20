@@ -1,6 +1,6 @@
 ## Quick Start
 
->This quick start guide is aimed at users with some basic knowledge of running and compiling python code who already have a development environment set up. Head over to the [Installation Chapter](/installation) for the complete guide.
+>This quick start guide is aimed at users with some basic knowledge of running and compiling python code who already have a development environment set up. Head over to the [README](/README.md) for the complete guide.
 
 ### Requirements
 

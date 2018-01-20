@@ -69,7 +69,7 @@ So ist unser Ansatz für das bla bla bla bla
 
 ### Training
 
-Für ihre weitere Verarbeitung werden die Daten gereinigt und optimal gespeichert. Um auf die Daten optimal zugreifen zu können, werden wird in der Trainingsphase die folgenden Schritte durchgeführt: 
+Für ihre weitere Verarbeitung werden die Daten gereinigt und optimal gespeichert. Um auf die Daten optimal zugreifen zu können, werden in der Trainingsphase die folgenden Schritte durchgeführt: 
 1. Eine lokale Datenbank mit Stationinformationen wird erzeugt.
 2. Die Stationinformationen werden um die Verfügbarkeit der Preise, sowie das Datum der ersten gemeldeten Preis erweitert.
 

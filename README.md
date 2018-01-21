@@ -18,13 +18,13 @@
       - python-dateutil
 
 ### Configuration
+- open a console/terminal
 - create a directory `InformatiCup` with `mkdir InformatiCup`
 - change to the `InformatiCup` directory with `cd InformatiCup`
-- create a `InformatiCup2018` directory inside `InformatiCup` with `mkdir InformatiCup2018`
 - change to the `InformatiCup2018` directory with `cd InformatiCup2018`
-- clone the official InformatiCup2018 project from the link [InformatiCup2018](https://github.com/InformatiCup/InformatiCup2018 ) inside the `InformtatiCup2018` directory with `git clone https://github.com/InformatiCup/InformatiCup2018`
-- get back to the `InformatiCup` directory with `cd ..`
-- copy the `benzlim` project inside the `InformatiCup` directory
+- clone the official InformatiCup2018 project from the link [InformatiCup2018](https://github.com/InformatiCup/InformatiCup2018 ) inside the `InformtatiCup` directory with `git clone https://github.com/InformatiCup/InformatiCup2018`
+- copy the `benzlim` inside the `InformatiCup` directory
+- Both `benzlim` and `InformatiCup2018` folders shoud be in the same directory
 
 
 ## Run

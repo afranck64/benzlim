@@ -15,13 +15,14 @@
 ### Installing Benzlim
 
 - Create a folder named `InformatiCup`
-- Inside the `InformatiCup` folder, clone the official InformatiCup2018 project from the link [InformatiCup2018](https://github.com/InformatiCup/InformatiCup2018 ) inside a new folder named `InformtatiCup2018`
-- Inside the `InformatiCup` folder, copy `benzlim` into a new folder named `benzlim`
+- Inside the `InformatiCup` folder, clone the official InformatiCup2018 project from the link [InformatiCup2018](https://github.com/InformatiCup/InformatiCup2018 )
+- Copy `benzlim` inside the `InformatiCup` folder
+- Both `benzlim` and `InformatiCup2018` folders shoud be in the same directory
 
 ### Run
 
    From the `InformatiCup` directory, run the command: `python benzlim -h` to get a more detailled help.  
-   if your `InformatiCup2018` is not located in the same directory as `benzlim`, you need to provide the optional argument `--informaticup2018-dir` when refering to it.  
+   if your `InformatiCup2018` folder is not located in the same directory as `benzlim`, you need to provide the optional argument `--informaticup2018-dir` when refering to it.  
    Running `benzlim` for the first time may take some time because the fuel prices need to be trained first.
 
 Please note that the prediction_file needs to have the following format with the three parts between `;` being "Use Gasoline prices until this date", "The time for the prediction" and "Gas station ID" respectively:

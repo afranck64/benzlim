@@ -1,0 +1,23 @@
+[paths]
+source =
+    src/
+
+[run]
+branch = True
+omit =
+    # omit anything in a .local directory anywhere
+    */.local/*
+    # omit everything in /usr
+    /usr/*
+    # omit everything in virtual envs
+    env*/*
+    */env/*
+    */env2/*
+    */env3/*
+
+concurrency =
+    multiprocessing
+
+[report]
+ignore_errors=True
+

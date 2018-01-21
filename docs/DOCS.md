@@ -83,6 +83,7 @@ Pro Vorhersage wird ein Prädiktor *P* trainiert.
 * Alle **_rel* werden zu einem Extrapolator übergeben, der ein Prädiktor für den Unterschied zwischen der jeweiligen Zeiteinheit und die höheren erzeugt.
 * Der grundlegende Prädiktor summiert die durchschnittlichen jährliche Prädiktion und relative monatliche, wöchentliche, tägliche, stündliche und minütliche Prädiktion.
 * Es wird der Durchschnitt der selektierten Preisen für die Vorhersage berechnet. Dieser wird als prädizierter Wert benutzt, falls den tatsächlichen prädizierten Wert eine Abweichung von 20% zu ihm weist. Somit ist der prädizierte Preis *p<sub>p1</sub>* vom Prädiktor *P<sub>1</sub>* erzeugt.
+* Es wird der Durchschnitt der selektierten Preise für die Vorhersage berechnet. Dieser wird als prädizierter Wert benutzt, falls den tatsächlichen prädizierten Wert eine Abweichung von 20% zu ihm weist. Somit ist der prädizierte Preis *p<sub>p1</sub>* vom Prädiktor *P<sub>1</sub>* erzeugt.
 * Als Zusatz wird *untrust = std(prices) / mean(selected_prices)* wo *std* die Standardabweichung ist und *avg* die Durchschnittfunktion. *untrust* gibt die Unsicherheit des Prädiktors an.
 
 * Es werden Preise ausgewählt, die in dem gleichen Stundenzeitslot sind, wie der Zeitstempel für die Vorhersage.
@@ -103,13 +104,17 @@ Bild. 5
 - Seien *trust1 = 1-untrust1* und *trust2 = 1 - untrust2*. Der endgültigte prädizierte Preis ist :  *p_<sub>p</sub>= (trust1*p_<sub>p1</sub> + trust2*p_<sub>p2</sub>) / (trust1 + trust2)*
 - Ein zweiter Prädiktor *P2* mit nur einem Level wird trainiert. Er präzidiert einen Preis basierend auf die Anzahl der Nanosekunden in einem Zeitsstempel. Dieser Prädiktor verfügt eben über Autokorrektur und generiert zusätzlich zu dem prädizierten Preis *p<sub>p2</sub>* eine Unsicherheit *untrust2* , die ausgibt wie  unsicher der Prädiktor ist.
 - Seien *trust1 = 1-untrust1* und *trust2 = 1 - untrust2*. Der endgültigte prädizierte Preis ist :  *p<sub>p</sub>= (trust1*p<sub>p1</sub> + trust2*p<sub>p2</sub>) / (trust1 + trust2)*
+- Ein zweiter Prädiktor *P2* mit nur einem Level wird trainiert. Er präzidiert einen Preis basierend auf die Anzahl der Nanosekunden in einem Zeitsstempel. Dieser Prädiktor verfügt eben über Autokorrektur und generiert zusätzlich zu dem prädizierten Preis *p<sub>p2</sub>* eine Unsicherheit *untrust2* , die ausgibt wie  unsicher der Prädiktor ist.
+- Seien *trust1 = 1-untrust1* und *trust2 = 1 - untrust2*. Der endgültigte prädizierte Preis ist :  *p<sub>p</sub>= (trust1*p<sub>p1</sub> + trust2*p<sub>p2</sub>) / (trust1 + trust2)*
+- Ein zweiter Prädiktor *P2* mit nur einem Level wird trainiert. Er präzidiert einen Preis basierend auf der Anzahl der Nanosekunden in einem Zeitsstempel. Dieser Prädiktor verfügt eben über Autokorrektur und generiert zusätzlich zu dem prädizierten Preis *p<sub>p2</sub>* eine Unsicherheit *untrust2* , die ausgibt wie unsicher der Prädiktor ist.
+- Seien *trust1 = 1-untrust1* und *trust2 = 1 - untrust2*. Der endgültigte prädizierte Preis ist :  *p<sub>p</sub>= (trust1*p<sub>p1</sub> + trust2*p<sub>p2</sub>) / (trust1 + trust2)*
 
 ### Routing
 
 Basierend auf der Entfernung bis zur nächsten günstigsten Tankstelle und der Tankkapazität des Autos wird die richtige Strecke und die jeweils zu tankende Menge berechnet. Dabei können verschiedene Werte dynamisch verändert werden:
-- tolerance_km gibt an, für wieviele Kilometer mehr als bis zur nächsten ausgewählten Tankstelle getankt wird, falls der Benzinverbrauch höher als erwartet ist.
-- fuel_surplus gibt an, mit wieviel Benzin das Ziel erreicht werden soll.
-- tolerance_amount und tolerance_price geben an, mit welcher Toleranz Tankstellen ausgelassen werden können, um nicht zu oft zu halten. Z.B. würden mit tolerance_amount = 10 und tolerance_price = 0.10 diejenigen Tankstellen übersprungen werden, bei denen weniger als 10 Liter getankt werden, falls die nächste oder letzte Tankstelle höchstens 10 Cent teurer ist.
+- *tolerance_km* gibt an, für wieviele Kilometer mehr als bis zur nächsten ausgewählten Tankstelle getankt wird, falls der Benzinverbrauch höher als erwartet ist.
+- *fuel_surplus* gibt an, mit wieviel Benzin das Ziel erreicht werden soll.
+- *tolerance_amount* und *tolerance_price* geben an, mit welcher Toleranz Tankstellen ausgelassen werden können, um nicht zu oft zu halten. Z.B. würden mit tolerance_amount = 10 und tolerance_price = 0.10 diejenigen Tankstellen übersprungen werden, bei denen weniger als 10 Liter getankt werden, falls die nächste oder letzte Tankstelle höchstens 10 Cent teurer ist.
 
 ## Ergebnisse
 
@@ -176,7 +181,7 @@ Im Durchschnitt hatten Vorhersagen mit und ohne Preise einen absoluten Fehler vo
 
 #### Bekannte Probleme
 
-* Der Speicherverbrauch ist proportional zur Anzahl der Prozessorkerne und kann beim Benchmarking zu Problemen führen
+* Der Speicherverbrauch ist proportional zur Anzahl der Prozessorkerne und kann beim Benchmarking mit sehr große Zahl an Stationen/Präditionen zu Problemen führen
 * Die Tankstrategie ist bei unrealistisch kleinen Tankkapazitäten teilweise fehlerhaft.
 * "Multiprocessing" führt unter Windows zu Fehlern. Dementsprechend wird für Windows nur "Monoprocessing" verwendet
 

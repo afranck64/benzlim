@@ -77,7 +77,7 @@ Pro Vorhersage wird ein Prädiktor *P* trainiert.
 * *yearly_avg* wird zu einem Extrapolator übergeben, der ein Prädiktor für ein für den jährlichen durchschnittlichen Preis erzeugt. Jede **_rel*  Tabelle berechnet sich aus die Unterschiede zwischen dem passenden **_avg* und die Summe der Prädiktionen der höheren Zeiteinheiten.
 * Alle **_rel* werden zu einem Extrapolator übergeben, der ein Prädiktor für den Unterschied zwischen der jeweiligen Zeiteinheit und die höheren erzeugt.
 * Der grundlegende Prädiktor summiert die durchschnittlichen jährliche Prädiktion und relative monatliche, wöchentliche, tägliche, stündliche und minütliche Prädiktion.
-* Es wird der Durchschnitt der selektierten Preisen für die Vorhersage berechnet. Dieser wird als prädizierter Wert benutzt, falls den tatsächlichen prädizierten Wert eine Abweichung von 20% zu ihm weist. Somit ist der prädizierte Preis *p_<sub>p1</sub>* vom Prädiktor *P_<sub>1</sub>* erzeugt.
+* Es wird der Durchschnitt der selektierten Preisen für die Vorhersage berechnet. Dieser wird als prädizierter Wert benutzt, falls den tatsächlichen prädizierten Wert eine Abweichung von 20% zu ihm weist. Somit ist der prädizierte Preis *p<sub>p1</sub>* vom Prädiktor *P<sub>1</sub>* erzeugt.
 * Als Zusatz wird *untrust = std(prices) / mean(selected_prices)* wo *std* die Standardabweichung ist und *avg* die Durchschnittfunktion. *untrust* gibt die Unsicherheit des Prädiktors an.
 
 * Es werden Preise ausgewählt, die in dem gleichen Stundenzeitslot sind, wie der Zeitstempel für die Vorhersage.
@@ -94,8 +94,8 @@ Bild. 5
 
 #### Korrektor
 
-- Ein zweiter Prädiktor *P2* mit nur einem Level wird trainiert. Er präzidiert einen Preis basierend auf die Anzahl der Nanosekunden in einem Zeitsstempel. Dieser Prädiktor verfügt eben über Autokorrektur und generiert zusätzlich zu dem prädizierten Preis *p_<sub>p2</sub>* eine Unsicherheit *untrust2* , die ausgibt wie  unsicher der Prädiktor ist.
-- Seien *trust1 = 1-untrust1* und *trust2 = 1 - untrust2*. Der endgültigte prädizierte Preis ist :  *p_<sub>p</sub>= (trust1*p_<sub>p1</sub> + trust2*p_<sub>p2</sub>) / (trust1 + trust2)*
+- Ein zweiter Prädiktor *P2* mit nur einem Level wird trainiert. Er präzidiert einen Preis basierend auf die Anzahl der Nanosekunden in einem Zeitsstempel. Dieser Prädiktor verfügt eben über Autokorrektur und generiert zusätzlich zu dem prädizierten Preis *p<sub>p2</sub>* eine Unsicherheit *untrust2* , die ausgibt wie  unsicher der Prädiktor ist.
+- Seien *trust1 = 1-untrust1* und *trust2 = 1 - untrust2*. Der endgültigte prädizierte Preis ist :  *p<sub>p</sub>= (trust1*p<sub>p1</sub> + trust2*p<sub>p2</sub>) / (trust1 + trust2)*
 
 ### Routing
 
@@ -134,16 +134,16 @@ Der Benchmark wurde mit folgender Anweisung ausgeführt:
 
 Durch die Ausführung der o. g. Anweisung werden die zwei Dateien `benchmark_with_prices.csv` und `benchmark_without_prices.csv` in `benzlim\out\` gespeichert.
 
-Ein Abschnit aus den Ergebnissen ist in folgenden Tabellen gelistet, wo  *e* der Unterschied zwischen einen prädizierten Preis *p_p* und den Referenzpreis *p_r* ist.
+Ein Abschnit aus den Ergebnissen ist in folgenden Tabellen gelistet, wo  *e* der Unterschied zwischen einen prädizierten Preis *p<sub>p</sub>* und den Referenzpreis *p<sub>r</sub>* ist.
 Ein Abschnitt aus den Ergebnissen ist in der folgenden Tabelle aufgelistet. Hier ist "e" die Differenz zwischen der vorhergesagten Preisen "p<sub>p</sub>" und der Referenzpreis "p<sub>r</sub>".
 
 * **Vorhersagen mit verfügbaren Preisen**
 
 | station_id       | 6421  | 14554  | 6799   | 5049   | 10823  | 79     | 3607   | 12682  | 2885   |
 | ---------------- | ----- | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
-| *max(\|e\|)*     | 62    | 26     | 42     | 42     | 69     | 98     | 39     | 29     | 27     |
-| *avg(\|e\|)*     | 30    | 18     | 29     | 15     | 34     | 27     | 24     | 20     | 20     |
-| *avg(\|e\|/p_r)* | 0.023 | 0.0135 | 0.0202 | 0.0108 | 0.0237 | 0.0217 | 0.0191 | 0.0151 | 0.0161 |
+| *max(abs(e))*     | 62    | 26     | 42     | 42     | 69     | 98     | 39     | 29     | 27     |
+| *avg(abs(e))*     | 30    | 18     | 29     | 15     | 34     | 27     | 24     | 20     | 20     |
+| *avg(abs(e)/p<sub>r</sub>)* | 0.023 | 0.0135 | 0.0202 | 0.0108 | 0.0237 | 0.0217 | 0.0191 | 0.0151 | 0.0161 |
 
 Tabelle 1.
 
@@ -152,9 +152,9 @@ Tabelle 1.
 | base_station_id  | 2953   | 7655   | 58     | 30     | 0.0209 | 14018  | 15133 | 71     | 33     |
 | :--------------- | ------ | ------ | ------ | ------ | ------ | ------ | ----- | ------ | ------ |
 | used_station_id  | 7655   | 15133  | 13424  | 4      | 15164  | 14459  | 14184 | 14716  | 14184  |
-| *max(\|e\|)*     | 58     | 71     | 46     | 72     | 60     | 39     | 43    | 37     | 45     |
-| *avg(\|e\|)*     | 30     | 33     | 19     | 40     | 53     | 12     | 16    | 16     | 24     |
-| *avg(\|e\|/p_r)* | 0.0209 | 0.0238 | 0.0144 | 0.0303 | 0.0325 | 0.0082 | 0.012 | 0.0124 | 0.0178 |
+| *max(abs(e))*     | 58     | 71     | 46     | 72     | 60     | 39     | 43    | 37     | 45     |
+| *avg(abs(e))*     | 30     | 33     | 19     | 40     | 53     | 12     | 16    | 16     | 24     |
+| *avg(abs(e)/p<sub>r</sub>)* | 0.0209 | 0.0238 | 0.0144 | 0.0303 | 0.0325 | 0.0082 | 0.012 | 0.0124 | 0.0178 |
 
 
 Im Durchschnitt haben Preisvorhersagen für sowohl Stationen mit Preisinformationen als auch Stationen ohne Preisinformationen eine absolute Fehlerrate von 25 bis 40.
@@ -178,7 +178,7 @@ Im Durchschnitt hatten Vorhersagen mit und ohne Preisen einen absoluten Fehler v
 - Benzlim ist der Stützpunkt für viele weitere Projekte die ein Effizienteres Routing für Autofahrer erbringen können. Diese wären bessere Routingalgorithmen, Reiseplanung Software usw.
 
 
-[adac_tankstellen_vergleich]: http://www.faz.net/aktuell/finanzen/meine-finanzen/geld-ausgeben/adac-tankstellenvergleich-shell-und-aral-am-teuersten-14404375.html	"Adac Tankstellengvergleich"
-[focus_guenstig_tanken]: https://www.focus.de/auto/praxistipps/benzinpreise-guenstig-tanken-zur-richtigen-zeit-am-richtigen-ort_id_4902163.html	"Benzinpreise, guenstig tanken"
-[faz_preis_zyklen]: http://www.faz.net/aktuell/finanzen/devisen-rohstoffe/beim-benzinpreis-bis-zu-30-cent-unterschied-am-tag-14869994.html	"Benzinpreis! Unterschiede am Tag"
-[mtsk_dritte_jahr]: http://www.bundeskartellamt.de/SharedDocs/Publikation/DE/Berichte/Dritter_Jahresbericht_MTS-K.pdf	" Das 3. Jahr Markttransparenzstelle"
+[adac_tankstellen_vergleich]: http://www.faz.net/aktuell/finanzen/meine-finanzen/geld-ausgeben/adac-tankstellenvergleich-shell-und-aral-am-teuersten-14404375.html	"Adac Tankstellengvergleich"  
+[focus_guenstig_tanken]: https://www.focus.de/auto/praxistipps/benzinpreise-guenstig-tanken-zur-richtigen-zeit-am-richtigen-ort_id_4902163.html	"Benzinpreise, guenstig tanken"  
+[faz_preis_zyklen]: http://www.faz.net/aktuell/finanzen/devisen-rohstoffe/beim-benzinpreis-bis-zu-30-cent-unterschied-am-tag-14869994.html	"Benzinpreis! Unterschiede am Tag"  
+[mtsk_dritte_jahr]: http://www.bundeskartellamt.de/SharedDocs/Publikation/DE/Berichte/Dritter_Jahresbericht_MTS-K.pdf	" Das 3. Jahr Markttransparenzstelle"  

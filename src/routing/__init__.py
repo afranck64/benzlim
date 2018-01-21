@@ -6,6 +6,10 @@ from ..dao.db import StationDAO
 
 
 def generate_tank_infos(capacity, timestamps_stations_prices):
+    """generate routing informations,
+    capacity: int, the tank capacity
+    timestamps_stations_prices: lst<str, int, int>, the predicted price informations
+    return routing informations according to the Intellitank format"""
     g = Graph(capacity)
     for timestamp, station_id, pred_price in timestamps_stations_prices:
         latitude, longitude = StationDAO.get_latitude_longitude(station_id)

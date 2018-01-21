@@ -21,6 +21,11 @@ NB_CHARS = 30 + 10 + 5
 
 class CSClassifier(object):
     def __init__(self, scoring_function=None, partition_index=0):
+        """Basic classifier,
+        The classification is done by using partitioning on partition_index and
+        Near Neighbour selection
+        scoring_function: function, the scoring fuction for the NNS
+        partition_index: int, the index to use for partitioning"""
         self.trained_data = dict()
         self.scoring_function = scoring_function or diff_score
         self.last_pred = []
@@ -28,6 +33,7 @@ class CSClassifier(object):
         self.partition_index = partition_index
 
     def fit(self, x_values, labels):
+        """Train the classifier"""
         classifier = CSClassifier()
         classifier.scoring_function = self.scoring_function
         classifier.partition_index = self.partition_index
@@ -75,6 +81,7 @@ class CSClassifier(object):
 
 
 class Classifier(object):
+    """Main classifier of gas stations"""
     _classifier = None
     def __init__(self):
         pass
@@ -136,6 +143,7 @@ class Classifier(object):
 
     @classmethod
     def train(cls, features=None, classes=None):
+        """train the classifier using"""
         classifier = CSClassifier()
         if classes is None or features is None:
             features, classes = cls.get_prepared_data()
@@ -146,12 +154,14 @@ class Classifier(object):
 
     @classmethod
     def dump(cls, classifier, filename=None):
+        """save a classifier to the file <filename>"""
         filename = filename or Configuration.get_instance().classifier_file
         with open(filename, 'w') as output_file:
             pickle.dump(classifier, output_file)
 
     @classmethod
     def load(cls, filename=None, create_on_error=True):
+        """Load a classifier from the file <filename>"""
         filename = filename or Configuration.get_instance().classifier_file
         if create_on_error:
             try:

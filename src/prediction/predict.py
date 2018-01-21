@@ -184,7 +184,8 @@ def get_price_predictor(station_id, dir_prices, ts=None, time_begin=None, time_e
         stddev = ts.dropna().std().values.flat[0]
     else:
         stddev = 1
-    def predictor_full(timestamp):
+
+    def predictor_full (timestamp):
         timestamp = pd.Timestamp(timestamp)
         res = year_avg_predictor(get_time(timestamp, 'Y'))\
                 + month_rel_predictor(get_time(timestamp, 'M'))\
@@ -193,13 +194,18 @@ def get_price_predictor(station_id, dir_prices, ts=None, time_begin=None, time_e
                 + hour_rel_predictor(get_time(timestamp, 'H'))\
                 + min_rel_predictor(get_time(timestamp, 'T'))
         res = int(round(res))
+        return res
+
+    def predictor_full_auto_correct(timestamp):
+        timestamp = pd.Timestamp(timestamp)
+        res = predictor_full(timestamp)
         if avg is not None and abs(res - avg) >avg*MAX_MARGIN_COEF:
             return avg, stddev/avg
         else:
             return res, stddev/avg
     if cache_key and Configuration.get_instance().enabled_cache:
-        CACHE_PREDICTORS[cache_key] = predictor_full
-    return predictor_full
+        CACHE_PREDICTORS[cache_key] = predictor_full_auto_correct
+    return predictor_full_auto_correct
 
 
 def get_price_predictor2(station_id, dir_prices, ts=None, time_begin=None, time_end=None, end_train_timestamp=None, poly_deg=2):
@@ -247,17 +253,19 @@ def get_price_predictor2(station_id, dir_prices, ts=None, time_begin=None, time_
     avg = int(ts.dropna().mean())
     stddev = ts.dropna().std().values.flat[0]
     predictor_f = np.poly1d(np.polyfit(ts.index.values.astype(int).flat, ts.values.flat, poly_deg))
-    
 
     def predictor_full(timestamp):
-        res = int(predictor_f(pd.Timestamp(timestamp).to_datetime64().astype(int)))
+        return int(predictor_f(pd.Timestamp(timestamp).to_datetime64().astype(int)))
+
+    def predictor_full_auto_correct(timestamp):
+        res = predictor_full(timestamp)
         if abs(res-avg) > avg*MAX_MARGIN_COEF:
             return avg, stddev/avg
         else:
             return res, stddev/avg
     if cache_key and Configuration.get_instance().enabled_cache:
         CACHE_PREDICTORS[cache_key] = predictor_full
-    return predictor_full
+    return predictor_full_auto_correct
 
 
 def predict_price(station_id, timestamp, end_train_timestamp, dir_prices, bench_ts=None):

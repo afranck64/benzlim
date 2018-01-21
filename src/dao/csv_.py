@@ -134,6 +134,21 @@ class CSVDAO(object):
             #logging.warn("%s | %s" % (err, filename))
             raise BadFormatException(filename)
 
+
+    @classmethod
+    def get_route_prices_params(cls, filename):
+        """return [<timestamp>, <station_id>, <pred_price>]"""
+        try:
+            with codecs.open(filename, 'r') as input_f:
+                reader = csv.reader(input_f, dialect=None, delimiter=';')
+                return tuple((row[0], int(row[1]), int(row[2])) for row in reader)
+        except IndexError as err:
+            #logging.warn("%s | %s" % (err, filename))
+            raise BadFormatException(filename)
+        except ValueError as err:
+            #logging.warn("%s | %s" % (err, filename))
+            raise BadFormatException(filename)
+
     @classmethod
     def get_route_as_predict_params(cls, filename):
         capacity, timestamp_stations = cls.get_route_params(filename)

@@ -9,11 +9,11 @@ from .config import Configuration
 
 class Trainer(object):
     @staticmethod
-    def train():
+    def train(force_train=False):
         config = Configuration.get_instance()
 
         #TODO Warning message, everithing will be lost!!!
-        if os.path.exists(config.database_file) and not config.force:
+        if os.path.exists(config.database_file) and not force_train:
             logging.warn("Training data seems to already exist.\n\tRetry with --force to overwrite it")
             return
         DBManager.force_init_db()

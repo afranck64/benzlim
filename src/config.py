@@ -60,15 +60,7 @@ class Configuration:
         self.log_level = kwargs.get("log", None) or logging.WARNING
         #user selected command
         self.command = kwargs.get("command")
-
-        ## benchmark config
-        #number of predictions per station
-        self.nb_predictions = kwargs.get("nb_predictions", 5)
-        #number of stations to benchmark
-        self.nb_stations = kwargs.get("nb_stations", 100)
-        #force action
-        self.force = kwargs.get("force", False)
-
+        
         #path to the python executable
         self.python = sys.executable
 

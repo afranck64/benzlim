@@ -11,7 +11,7 @@ from .compat import printf
 from .config import Configuration
 
 
-def evaluate(station_id, ts, ground_ts, end_train_timestamp, dir_prices, nb_predictions):
+def evaluate_prediction(station_id, ts, ground_ts, end_train_timestamp, dir_prices, nb_predictions):
     timestamps = ground_ts.index.values.flat
     prices = ground_ts.values.flat
     real_prices = np.zeros(nb_predictions)
@@ -29,7 +29,7 @@ def evaluate(station_id, ts, ground_ts, end_train_timestamp, dir_prices, nb_pred
     diff = diff.astype(int)
     return np.max(diff), np.average(diff), np.average(rel_diff)
 
-def benchmark_station(station_id, dir_prices, base_station_id=None, nb_predictions=5):
+def _benchmark_prediction(station_id, dir_prices, base_station_id=None, nb_predictions=5):
     """test predictions on <station_id> using values of <base_station_id> as ground truth,
     if base_station_id is not given, station_id is used as ground truth
     
@@ -45,11 +45,11 @@ def benchmark_station(station_id, dir_prices, base_station_id=None, nb_predictio
         ground_ts = CSVDAO.get_station_dataframe(base_station_id, dir_prices)
     ground_ts = ts[end_train_timestamp:].first("1M")
     ts = ts[:end_train_timestamp]
-    return evaluate(station_id, ts, ground_ts, end_train_timestamp, dir_prices, nb_predictions)
+    return evaluate_prediction(station_id, ts, ground_ts, end_train_timestamp, dir_prices, nb_predictions)
 
 
-def process_benchmark_station(args):
-    return benchmark_station(*args)
+def process_benchmark_prediction(args):
+    return _benchmark_prediction(*args)
 
 def benchmark_with_prices(nb_stations, nb_predictions, dir_prices):
     stations = StationDAO.get_all_with_prices()
@@ -66,9 +66,9 @@ def benchmark_with_prices(nb_stations, nb_predictions, dir_prices):
     pool = Configuration.get_instance().get_pool()
     lst_res = []
     if pool is not None:
-        lst_res = pool.map(process_benchmark_station, tasks)
+        lst_res = pool.map(process_benchmark_prediction, tasks)
     else:
-        lst_res = [process_benchmark_station(task) for task in tasks]
+        lst_res = [process_benchmark_prediction(task) for task in tasks]
 
     rows = []
     for idx, res in enumerate(lst_res):
@@ -107,9 +107,9 @@ def benchmark_without_prices(nb_stations, nb_predictions, dir_prices):
 
     pool = Configuration.get_instance().get_pool()
     if pool is not None:
-        lst_res = pool.map(process_benchmark_station, tasks)
+        lst_res = pool.map(process_benchmark_prediction, tasks)
     else:
-        lst_res = [process_benchmark_station(task) for task in tasks]
+        lst_res = [process_benchmark_prediction(task) for task in tasks]
     rows = []
     for idx, res in enumerate(lst_res):
         abs_max = int(ceil(res[0]))
@@ -130,6 +130,15 @@ def benchmark_without_prices(nb_stations, nb_predictions, dir_prices):
     CSVDAO.export_to_csv(out_filename, rows, ["base_station_id", "used_station_id",  "abs error max", "avg abs err", "avg rel. err"])
 
 
-def process_benchmark(dir_prices, nb_stations=1, nb_predictions=5):
+def benchmark_predictions(nb_stations, nb_predictions, dir_prices):
     benchmark_with_prices(nb_stations, nb_predictions, dir_prices)
     benchmark_without_prices(nb_stations, nb_predictions, dir_prices)
+
+def _benchmark_routing(route_file, route_prices_file):
+    capacity, _ = CSVDAO.get_route_params(route_file)
+    route_rows = CSVDAO.get_route_prices_params(route_prices_file)
+
+def benchmark_routing(nb_stations, nb_predictions, dir_prices):
+    pass
+def process_benchmark(dir_prices, nb_stations=1, nb_predictions=5):
+    benchmark_predictions(nb_stations, nb_predictions, dir_prices)

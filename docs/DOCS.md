@@ -83,6 +83,10 @@ Pro Vorhersage wird ein Prädiktor *P* trainiert.
 * Alle **_rel* werden zu einem Extrapolator übergeben, der ein Prädiktor für den Unterschied zwischen der jeweiligen Zeiteinheit und die höheren erzeugt.
 * Der grundlegende Prädiktor summiert die durchschnittlichen jährliche Prädiktion und relative monatliche, wöchentliche, tägliche, stündliche und minütliche Prädiktion.
 * Es wird der Durchschnitt der selektierten Preisen für die Vorhersage berechnet. Dieser wird als prädizierter Wert benutzt, falls den tatsächlichen prädizierten Wert eine Abweichung von 20% zu ihm weist. Somit ist der prädizierte Preis *p<sub>p1</sub>* vom Prädiktor *P<sub>1</sub>* erzeugt.
+* Seien *monthly_rel*, *weekly_rel*, *daily_rel*, *hourly_rel* und *min_rel* die Unterschiede zwischen den jeweils monatlichen, wochentlichen, täglichen und stündlichen durchschnittlichen Preisen und den durchschnittlichen Preisen der höheren Zeiteinheit.
+* *yearly_avg* wird zu einem Extrapolator übergeben, der einen Prädiktor für den jährlichen durchschnittlichen Preis erzeugt. Jede **_rel*  Tabelle berechnet sich aus den Unterschieden zwischen dem passenden **_avg* und der Summe der Prädiktionen der höheren Zeiteinheiten.
+* Alle **_rel* werden zu einem Extrapolator übergeben, der einen Prädiktor für den Unterschied zwischen der jeweiligen Zeiteinheit und der höheren erzeugt.
+* Der grundlegende Prädiktor summiert die durchschnittlichen jährlichen Prädiktionen und relativen monatliche, wöchentliche, tägliche, stündliche und minütliche Prädiktionen.
 * Es wird der Durchschnitt der selektierten Preise für die Vorhersage berechnet. Dieser wird als prädizierter Wert benutzt, falls den tatsächlichen prädizierten Wert eine Abweichung von 20% zu ihm weist. Somit ist der prädizierte Preis *p<sub>p1</sub>* vom Prädiktor *P<sub>1</sub>* erzeugt.
 * Als Zusatz wird *untrust = std(prices) / mean(selected_prices)* wo *std* die Standardabweichung ist und *avg* die Durchschnittfunktion. *untrust* gibt die Unsicherheit des Prädiktors an.
 

@@ -8,8 +8,8 @@ InformatiCup 2018 - Benzlim
 
 ## Einführung
 
-Die Tankstrategie ist ein wichtiger Bestandteil jeder Reise. Wann, an welcher Tankstelle und wie viel Tanken zu müssen um am günstigsten und effizientesten ans Ziel zu gelangen macht auf lange Sicht einen großen finanziellen Unterschied.
-Benzlim ist eine Python basierte Software Lösung die Verbraucher und Entwickler nutzen können, um Benzinpreise vorherzusagen und den Effizientesten Tankstrategie zu erstellen.
+Die Tankstrategie ist ein wichtiger Bestandteil jeder Reise. Wann, an welcher Tankstelle und wie viel tanken zu müssen um am günstigsten und effizientesten ans Ziel zu gelangen macht auf lange Sicht einen großen finanziellen Unterschied.
+Benzlim ist eine auf Python basierte Software-Lösung, die Verbraucher*innen und Entwickler*innen nutzen können, um Benzinpreise vorherzusagen und die effizienteste Tankstrategie zu erstellen.
 
 ## Analyse
 
@@ -39,8 +39,8 @@ Benzinpreisänderungen am Tag sind unabhängig von der Marke
 
 ## Ansatz
 
-Die ausgewählte Lösungsweg basiert darauf, dass Benzinpreise zwar sehr flüchtig sind, dennoch ihre Preise hängen stärker von der Marke als von dem Ort an.
-Um die Preise vorhersagen zu können werden die durchschnittlichen Benzinpreise in bestimmten Zeitspannen (Jährlich, Monatlich, Wöchentlich, Täglich, Stündlich, Minütlich) berechnet. Die erzeugten Daten werden zu einem Extrapolator übergeben, der einen Prädiktor für die Differenz zwischen der jeweiligen Zeiteinheit und die höheren Zeiteinheiten erzeugt. Der grundlegende Prädiktor summiert die durchschnittlichen jährlichen Prädiktionen mit die monatlichen, wöchentlichen, täglichen, stündlichen und minütlichen Prädiktionen auf und erzeugt die Vorhersage.
+Der ausgewählte Lösungsweg basiert darauf, dass die Benzinpreise stärker von der Marke als vom Ort abhängen.
+Um die Preise vorhersagen zu können, werden die durchschnittlichen Benzinpreise in bestimmten Zeitspannen (jährlich, monatlich, wöchentlich, täglich, stündlich, minütlich) berechnet. Die erzeugten Daten werden zu einem Extrapolator übergeben, der einen Prädiktor für die Differenz zwischen der jeweiligen Zeiteinheit und den höheren Zeiteinheiten erzeugt. Der grundlegende Prädiktor summiert die durchschnittlichen jährlichen Prädiktionen mit den monatlichen, wöchentlichen, täglichen, stündlichen und minütlichen Prädiktionen auf und erzeugt die Vorhersage.
 
 ### Training
 
@@ -78,14 +78,19 @@ Pro Vorhersage wird ein Prädiktor *P* trainiert.
 * Alle **_rel* werden zu einem Extrapolator übergeben, der ein Prädiktor für den Unterschied zwischen der jeweiligen Zeiteinheit und die höheren erzeugt.
 * Der grundlegende Prädiktor summiert die durchschnittlichen jährliche Prädiktion und relative monatliche, wöchentliche, tägliche, stündliche und minütliche Prädiktion.
 * Es wird der Durchschnitt der selektierten Preisen für die Vorhersage berechnet. Dieser wird als prädizierter Wert benutzt, falls den tatsächlichen prädizierten Wert eine Abweichung von 20% zu ihm weist. Somit ist der prädizierte Preis *p<sub>p1</sub>* vom Prädiktor *P<sub>1</sub>* erzeugt.
+* Seien *monthly_rel*, *weekly_rel*, *daily_rel*, *hourly_rel* und *min_rel* die Unterschiede zwischen den jeweils monatlichen, wochentlichen, täglichen und stündlichen durchschnittlichen Preisen und den durchschnittlichen Preisen der höheren Zeiteinheit.
+* *yearly_avg* wird zu einem Extrapolator übergeben, der einen Prädiktor für den jährlichen durchschnittlichen Preis erzeugt. Jede **_rel*  Tabelle berechnet sich aus den Unterschieden zwischen dem passenden **_avg* und der Summe der Prädiktionen der höheren Zeiteinheiten.
+* Alle **_rel* werden zu einem Extrapolator übergeben, der einen Prädiktor für den Unterschied zwischen der jeweiligen Zeiteinheit und der höheren erzeugt.
+* Der grundlegende Prädiktor summiert die durchschnittlichen jährlichen Prädiktionen und relativen monatliche, wöchentliche, tägliche, stündliche und minütliche Prädiktionen.
+* Es wird der Durchschnitt der selektierten Preise für die Vorhersage berechnet. Dieser wird als prädizierter Wert benutzt, falls den tatsächlichen prädizierten Wert eine Abweichung von 20% zu ihm weist. Somit ist der prädizierte Preis *p_<sub>p1</sub>* vom Prädiktor *P_<sub>1</sub>* erzeugt.
 * Als Zusatz wird *untrust = std(prices) / mean(selected_prices)* wo *std* die Standardabweichung ist und *avg* die Durchschnittfunktion. *untrust* gibt die Unsicherheit des Prädiktors an.
 
 * Es werden Preise ausgewählt, die in dem gleichen Stundenzeitslot sind, wie der Zeitstempel für die Vorhersage.
 * "yearly_avg", "monthly_avg", "weekly_avg", "daily_avg", "hourly_avg" und "min_avg" sind jeweils die jährlichen, monatlichen, wöchentlichen, täglichen und stündlichen durchschnittlichen Preise.
 * "monthly_rel", "weekly_rel", "daily_rel", "hourly_rel" und "min_rel" sind die Differenz zwischen jeweils den durchschnittlichen monatlichen, wöchentlichen, täglichen und stündlichen Preisen und den durchschnittlichen Preisen der höheren Zeiteinheit.
 * "yearly_avg" wird zu einem Extrapolator übergeben, der ein Prädiktor für den jährlichen Durchschnittspreis erzeugt. Jede "_rel" Tabelle wird durch die Berechnung der Differenz zwischen dem passenden "_avg" und die Summe der Prädiktionen der höheren Zeiteinheiten erzeugt.
-* Alle "_rel" werden zu einem Extrapolator übergeben, der einen Prädiktor für die Differenz zwischen der jeweiligen Zeiteinheit und die höheren Zeiteinheiten erzeugt.
-* Der grundlegende Prädiktor summiert die durchschnittlichen jährlichen Prädiktionen mit die monatlichen, wöchentlichen, täglichen, stündlichen und minütlichen Prädiktion auf und erzeugt die Vorhersage.
+* Alle "_rel" werden zu einem Extrapolator übergeben, der einen Prädiktor für die Differenz zwischen der jeweiligen Zeiteinheit und den höheren Zeiteinheiten erzeugt.
+* Der grundlegende Prädiktor summiert die durchschnittlichen jährlichen Prädiktionen mit den monatlichen, wöchentlichen, täglichen, stündlichen und minütlichen Prädiktionen auf und erzeugt die Vorhersage.
 
 
 ![predictor](images/predictor.png)
@@ -96,36 +101,42 @@ Bild. 5
 
 - Ein zweiter Prädiktor *P2* mit nur einem Level wird trainiert. Er präzidiert einen Preis basierend auf die Anzahl der Nanosekunden in einem Zeitsstempel. Dieser Prädiktor verfügt eben über Autokorrektur und generiert zusätzlich zu dem prädizierten Preis *p<sub>p2</sub>* eine Unsicherheit *untrust2* , die ausgibt wie  unsicher der Prädiktor ist.
 - Seien *trust1 = 1-untrust1* und *trust2 = 1 - untrust2*. Der endgültigte prädizierte Preis ist :  *p<sub>p</sub>= (trust1*p<sub>p1</sub> + trust2*p<sub>p2</sub>) / (trust1 + trust2)*
+- Ein zweiter Prädiktor *P2* mit nur einem Level wird trainiert. Er präzidiert einen Preis basierend auf der Anzahl der Nanosekunden in einem Zeitsstempel. Dieser Prädiktor verfügt eben über Autokorrektur und generiert zusätzlich zu dem prädizierten Preis *p_<sub>p2</sub>* eine Unsicherheit *untrust2* , die ausgibt wie unsicher der Prädiktor ist.
+- Seien *trust1 = 1-untrust1* und *trust2 = 1 - untrust2*. Der endgültigte prädizierte Preis ist :  *p_<sub>p</sub>= (trust1*p_<sub>p1</sub> + trust2*p_<sub>p2</sub>) / (trust1 + trust2)*
 
 ### Routing
 
-Basierend auf die Entfernung bis zur nächsten günstigsten Tankstelle und die Tankkapazität des Autos, wird die richtige Strecke und der zu tankende Menge, berechnet.
+Basierend auf der Entfernung bis zur nächsten günstigsten Tankstelle und der Tankkapazität des Autos wird die richtige Strecke und die jeweils zu tankende Menge berechnet. Dabei können verschiedene Werte dynamisch verändert werden:
+- tolerance_km gibt an, für wieviele Kilometer mehr als bis zur nächsten ausgewählten Tankstelle getankt wird, falls der Benzinverbrauch höher als erwartet ist.
+- fuel_surplus gibt an, mit wieviel Benzin das Ziel erreicht werden soll.
+- tolerance_amount und tolerance_price geben an, mit welcher Toleranz Tankstellen ausgelassen werden können, um nicht zu oft zu halten. Z.B. würden mit tolerance_amount = 10 und tolerance_price = 0.10 diejenigen Tankstellen übersprungen werden, bei denen weniger als 10 Liter getankt werden, falls die nächste oder letzte Tankstelle höchstens 10 Cent teurer ist.
 
 ## Ergebnisse
 
 
 ## Auswertung
 
-Bei der Auswertung liegt der Fokus auf die vorhersage der Preise.
+Bei der Auswertung liegt der Fokus auf der Vorhersage der Preise.
 Ausgewertet sind sowohl Stationen mit verfügbaren Preisinformationen als auch Stationen die keine Daten zu deren Preisen zur Verfügung gestellt haben.
 
 #### Vorhersage
 
-Ausgewertet werden Prädiktionen bei denen das Training mit tatsächlichen Preisen der Station durchgeführt wurde und anschließend Prädiktionen bei denen das Training mit Preisen einer Ersatzstation durchgeführt wurde.
+Ausgewertet werden erst Prädiktionen, bei denen das Training mit tatsächlichen Preisen der Station durchgeführt wurde und anschließend Prädiktionen, bei denen das Training mit Preisen einer Ersatzstation durchgeführt wurde.
 * Vorhersagen mit verfügbaren Preisen
 
-  Wir haben 1000 Stationen mit verfügbaren Preisinformationen ausgewählt und für jede dieser Stationen einen Zufallsdatum erzeugt.
-  Mit der o. g. Informationen wurden 16 Vorhersagen mit jeweils unterschiedlichen Enddaten für das Training durchgeführt. Für jede Station wurden die maximalen und durchschnittlichen absoluten Fehler sowie die relativen durchschnittlichen Fehler gemessen.
+  Wir haben 1000 Stationen mit verfügbaren Preisinformationen ausgewählt und für jede dieser Stationen ein Zufallsdatum erzeugt.
+  Mit den o. g. Informationen wurden 16 Vorhersagen mit jeweils unterschiedlichen Enddaten für das Training durchgeführt. Für jede Station wurden die maximalen und durchschnittlichen absoluten Fehler sowie die relativen durchschnittlichen Fehler gemessen.
 
-  Wir haben 1000 Stationen mit Preisen ausgewählt und für jede Station ein Datum ausgewählt, aus dem 16 Mal vorhergesagt wurde, mit unterschiedlichen Enddaten fürs Training. Für jede Station wurde den  maximalen und durchschnittlichen absoluten Fehler sowie den relativen durchschnittlichen Fehler berechnet.
+  Wir haben 1000 Stationen mit Preisen ausgewählt und für jede Station ein Datum ausgewählt, aus dem 16 Mal mit unterschiedlichen Enddaten fürs Training vorhergesagt wurde. Für jede Station wurde der maximalen und durchschnittliche absolute Fehler sowie der relative durchschnittliche Fehler berechnet.
 
 * Vorhersage ohne verfügbare Preise
 
-  Wir haben 1000 Stationen mit Preise ausgewählt und für jede Station ein Prädiktor mit einer alternativen Station vom Klassifier gegeben trainiert und 16 Mal Preise Vorhergesagt. Die Preise der originalen Station wurden benutzt als Referenzwerte für die Berechnung der Fehler. Für jede Station wurde den  maximalen und durchschnittlichen absoluten Fehler sowie den relativen durchschnittlichen Fehler berechnet.
+  Wir haben 1000 Stationen mit Preisen ausgewählt und für jede Station einen Prädiktor mit einer alternativen Station vom Klassifier trainiert und 16 Mal Preise vorhergesagt. Die Preise der originalen Station wurden benutzt als Referenzwerte für die Berechnung der Fehler. Für jede Station wurde der maximale und der durchschnittliche absolute Fehler sowie der relative durchschnittliche Fehler berechnet.
+  
 * Vorhersagen ohne verfügbare Preise
 
   Wir haben 1000 Stationen mit verfügbaren Preisinformationen ausgewählt und für jede dieser Stationen einen Prädiktor mit einer alternativen Station vom Klassifier ausgesucht.
-  Mit der o. g. Informationen wurden 16 Vorhersagen durchgeführt. Diesbezüglich wurden die Preise der originalen Stationen als Bezugswert für die Berechnung der Fehler benutzt. Für jede Station wurden die maximalen und durchschnittlichen absoluten Fehler sowie die relativen durchschnittlichen Fehler gemessen.
+  Mit den o. g. Informationen wurden 16 Vorhersagen durchgeführt. Diesbezüglich wurden die Preise der originalen Stationen als Bezugswert für die Berechnung der Fehler benutzt. Für jede Station wurden die maximalen und durchschnittlichen absoluten Fehler sowie die relativen durchschnittlichen Fehler gemessen.
 
 
 Der Benchmark wurde mit folgender Anweisung ausgeführt:
@@ -159,23 +170,23 @@ Tabelle 1.
 
 Im Durchschnitt haben Preisvorhersagen für sowohl Stationen mit Preisinformationen als auch Stationen ohne Preisinformationen eine absolute Fehlerrate von 25 bis 40.
 
-Im Durchschnitt hatten Vorhersagen mit und ohne Preisen einen absoluten Fehler von **33 +/- 6** und einen relativen Fehler von **0.022 +/- 0,004** . Absolute Fehler der Vorhersagen ohne Preise bewegen sich im selben Intervall.
+Im Durchschnitt hatten Vorhersagen mit und ohne Preise einen absoluten Fehler von **33 +/- 6** und einen relativen Fehler von **0.022 +/- 0,004** . Absolute Fehler der Vorhersagen ohne Preise bewegen sich im selben Intervall.
 
 
 
 #### Bekannte Probleme
 
 * Der Speicherverbrauch ist proportional zur Anzahl der Prozessorkerne und kann beim Benchmarking zu Problemen führen
-* Die Tankstrategie ist in ca. 5% der Fälle Inkonsistent
+* Die Tankstrategie ist bei unrealistisch kleinen Tankkapazitäten teilweise fehlerhaft.
 * "Multiprocessing" führt unter Windows zu Fehlern. Dementsprechend wird für Windows nur "Monoprocessing" verwendet
 
 ## Abschluss
 
 ### Ausblick
 
-- Die Anwendung von einem erweitertem Weg zur Berechnung der Unsicherheit könnte die Ergebnisse verbessern. Er könnte zum Beispiel  auf den Prädiktionfehler von den Werten die für das Training benutzt wurden.
-- Die Tankstrategie benutzt zurzeit eine fixe Unsicherheit für alle Station/Anhaltspunkte. Es ist zu erwarten, dass sie mit genaueren Informationen bessere Schätzungen macht nämlich die Unsicherheit jedes einzeln prädizierten Preis. 
-- Benzlim ist der Stützpunkt für viele weitere Projekte die ein Effizienteres Routing für Autofahrer erbringen können. Diese wären bessere Routingalgorithmen, Reiseplanung Software usw.
+- Die Anwendung von einem erweitertem Weg zur Berechnung der Unsicherheit könnte die Ergebnisse verbessern. Er könnte zum Beispiel auf den Prädiktionsfehler von den Werten die für das Training benutzt wurden.
+- Die Tankstrategie benutzt zurzeit eine fixe Unsicherheit für alle Station/Anhaltspunkte. Es ist zu erwarten, dass sie mit genaueren Informationen bessere Schätzungen macht, nämlich die Unsicherheit jedes einzeln prädizierten Preis. 
+- Benzlim ist der Stützpunkt für viele weitere Projekte die ein effizienteres Routing für Autofahrer erbringen können. Diese wären bessere Routingalgorithmen, Reiseplanung Software usw.
 
 
 [adac_tankstellen_vergleich]: http://www.faz.net/aktuell/finanzen/meine-finanzen/geld-ausgeben/adac-tankstellenvergleich-shell-und-aral-am-teuersten-14404375.html	"Adac Tankstellengvergleich"  

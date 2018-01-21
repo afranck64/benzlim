@@ -1,3 +1,4 @@
+"""py2 - Python2 compatibility module"""
 import cPickle as pickle
 
 def printf(*args, **kwargs):

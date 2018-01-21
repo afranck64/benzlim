@@ -1,3 +1,4 @@
+"""node.py - Nodes for graph based representation of gas stations in a route"""
 from math import cos, asin, sqrt
 import datetime
 

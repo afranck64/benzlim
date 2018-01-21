@@ -1,3 +1,4 @@
+"""graph.y - Tank strategy optimizer for graph based routes"""
 from collections import OrderedDict
 import logging
 

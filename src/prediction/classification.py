@@ -1,3 +1,5 @@
+"""classfication.py - gas stations classfication tools"""
+
 import logging
 from math import atan2, pi
 import os

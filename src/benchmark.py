@@ -1,3 +1,4 @@
+"""benchmark.py - Benchmarking tool"""
 from math import ceil
 import os.path
 import numpy as np

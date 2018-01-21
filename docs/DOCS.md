@@ -4,12 +4,6 @@ InformatiCup 2018 - Benzlim
 **Franck Awounang Nekdem**,  **Gerald Wiese**,  **Amin Akbariazirani** und **Lea Evers**
 
 
-
-
-</header>
-
-<main>
-
 [TOC]
 
 ## Einführung
@@ -39,7 +33,6 @@ Bild 3. *Quelle:* [Frankfurt Allgemeine Zeitung][adac_tankstellen_vergleich]
 
 Benzinpreisänderungen am Tag sind unabhängig von der Marke
 
-[][{demo}]
 
 [blabla]: demo
 [hello]: https://www.focus.de/auto/praxistipps/benzinpreise-guenstig-tanken-zur-richtigen-zeit-am-richtigen-ort_id_4902163.html
@@ -58,8 +51,6 @@ Für die weitere Verarbeitung werden die Daten gereinigt und optimal gespeichert
 ### Vorhersage
 
 #### Klassifiezierung
-
-SUBsub <sub>adsf</sub>
 
 
 
@@ -103,12 +94,8 @@ Bild. 5
 
 #### Korrektion
 
-- Ein zweiter Prädiktor $P2$ mit nur einem Level wird trainiert. Er präzidiert einen Preis basierend aus der Anzahl der nanosekonden in einem Zeitsstempel. Dieser Prädiktor verfügt eben über Autokorrektur und generiert zusäztlich zu dem prädiziertem Preis $p_{p2}$ eine Unsicherheit $untrust2$ , die ausgibt wie  unsicher der Prädiktor ist.
+- Ein zweiter Prädiktor $P2$ mit nur einem Level wird trainiert. Er präzidiert einen Preis basierend auf die Anzahl der nanosekonden in einem Zeitsstempel. Dieser Prädiktor verfügt eben über Autokorrektur und generiert zusäztlich zu dem prädiziertem Preis $p_{p2}$ eine Unsicherheit $untrust2$ , die ausgibt wie  unsicher der Prädiktor ist.
 - Seien $trust1 = 1-untrust1$ und $trust2 = 1 - untrust2$. Der endgültigte prädizierter Preis ist :  $p_p= (trust1*p_{p1} + trust2*p_{p2}) \div (trust1 + trust2)$
-
-#### 
-* Ein Subprädiktor, mit allen gespeicherten Preisen
-* Wenn die berechnete Vorhersage eine Abweichung von 20%+ von dem Durchschnittspreis hat, wird der Durchschnittspreis als alternative ausgewählt.
 
 ### Routing
 
@@ -176,7 +163,6 @@ Im Durchschnitt hatten Vorhersagen mit und ohne Preisen einen alsoluten Fehler v
 
 
 
-#### Benkannte Probleme
 #### Bekannte Probleme
 
 * Der Speicherverbrauch ist proportionnel zur Anzahl der Prozessorkerne und kann beim Benchmarking zu Problemen führen
@@ -189,19 +175,8 @@ Im Durchschnitt hatten Vorhersagen mit und ohne Preisen einen alsoluten Fehler v
 
 - Die Anwendung von einem erweitetem Weg zur Berechnung der Unsicherheit könnte die Ergebnisse verbessen. Er könnte zum Beisspeil  auf den Prädiktionfehler von den Werten die für das Training benutzt wurden.
 - Die Tankstrategie benutzt zurzeit eine fixe Unsicherheit für alle Station/Anhaltspunkte. Es ist zu erwarten, dass sie mit genaueren Informationen bessere Schäztungen macht nämlich die Unsicherheit jedes einzeln prädiziertem Preis. 
+- Benzlim ist der Stützpunkt für viele weitere Projekte die ein Effizienteres Routing für Autofahrer erbringen können. Diese wären bessere Routingalgorithmen, Reiseplanung Software usw.
 
-
-
-Benzlim ist der Stützpunkt für viele weitere Projekte die ein Effizienteres Routing für Autofahrer erbringen können. Diese wären bessere Routingalgorithmen, Reiseplanung Software usw.
-
-</main>
-
-
-[^fn][msk_dritter_jahr]
-
-<strong>strong</strong>
-
-<footer>
 
 [adac_tankstellen_vergleich]: http://www.faz.net/aktuell/finanzen/meine-finanzen/geld-ausgeben/adac-tankstellenvergleich-shell-und-aral-am-teuersten-14404375.html	"Adac Tankstellengvergleich"
 [focus_guenstig_tanken]: https://www.focus.de/auto/praxistipps/benzinpreise-guenstig-tanken-zur-richtigen-zeit-am-richtigen-ort_id_4902163.html	"Benzinpreise, guenstig tanken"

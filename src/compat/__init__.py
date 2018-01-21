@@ -1,3 +1,4 @@
+"""compat - Compatibility packages for ython2 and python3"""
 import sys
 
 if sys.version_info.major == 2:

@@ -1,6 +1,5 @@
-# -- coding: utf-8 --
-
 """db.py - access station related informations"""
+# -- coding: utf-8 --
 
 import logging
 import sqlite3

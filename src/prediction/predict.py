@@ -1,3 +1,4 @@
+"""predict.py - core prediction tools"""
 import logging
 import os
 import warnings

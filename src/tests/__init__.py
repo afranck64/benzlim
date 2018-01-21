@@ -1,3 +1,4 @@
+"""tests - Tests runner"""
 import logging
 import os
 import glob

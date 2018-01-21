@@ -1,3 +1,4 @@
+"""exceptions_.py - benzlim exceptions"""
 class BenzlimException(Exception):
     def __init__(self, message, *args):
         super(BenzlimException, self).__init__(self, message, *args)

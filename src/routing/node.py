@@ -1,11 +1,12 @@
+"""node.py - Nodes for graph based representation of gas stations in a route"""
 from math import cos, asin, sqrt
 import datetime
 
 
 
 class Node:
-    def __init__(self, id, lat, lon, price=0, timestamp=''):
-        self.id = id
+    def __init__(self, id_, lat, lon, price=0, timestamp=''):
+        self.id = id_
         self.lat = lat
         self.lon = lon
         self.price = price
@@ -18,6 +19,9 @@ class Node:
 
     def __lt__(self, other):  # comparison method for priority queue
         return self.price < other.price
+    
+    def __le__(self, other):
+        return self.price <= other.price
 
     def __eq__(self, other):
         return self.key == other.key
@@ -29,7 +33,7 @@ class Node:
     def __repr__(self):
         return self.__str__()
     
-    def distance_to(self, other, g, use_tolerance):
+    def distance_to(self, other, g, use_tolerance=False):
         y = self
         result = 0
         while True:

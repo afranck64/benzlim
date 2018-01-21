@@ -1,3 +1,4 @@
+"""graph.y - Tank strategy optimizer for graph based routes"""
 from collections import OrderedDict
 import logging
 
@@ -66,15 +67,15 @@ class Graph:
                 else:
                     amount = self.gas_for_km(x.distance_to(x.next, self, True)) - self.current_gas
                     tmp_refuels[x.key] = amount
-                    gas_info[x.id] = [amount, x.price_for_gas(amount)]
-                    self.current_gas += gas_info[x.id][0] - self.gas_for_km(x.distance_to(x.next, self, None))
+                    gas_info[x.key] = [amount, x.price_for_gas(amount)]
+                    self.current_gas += gas_info[x.key][0] - self.gas_for_km(x.distance_to(x.next, self, None))
                 next_x = x.next
                 x.expected_amount = amount
                 bp.remove(x)
                 x = next_x
             else:
-                amount = min(self.capacity, x.distance_to(self.goal, self, True)) - self.current_gas
-                gas_info[x.id] = [amount, x.price_for_gas(amount)]
+                amount = min(self.gas_for_km(x.distance_to(x.next, self, None)), x.distance_to(self.goal, self, True)) - self.current_gas
+                gas_info[x.key] = [amount, x.price_for_gas(amount)]
                 tmp_refuels[x.key] = amount
                 self.current_gas = self.current_gas + amount - self.gas_for_km(x.distance_to(x.next, self, None))
                 next_x=x.next
@@ -106,13 +107,51 @@ class Graph:
             while True:
                 if optimizer_dict[-1].price > optimizer_dict[-2].price - self.tolerance_price / self.tolerance_quotient:
                     optimizer_dict.pop(-1)
-                    optimizer_dict[-1].expected_amount = self.capacity
+                    optimizer_dict[-1].expected_amount = min(self.capacity, self.gas_for_km(optimizer_dict[-1].distance_to(self.goal, self, True)))
                     if len(optimizer_dict) == 1:
                         break
                 else:
                     break
         optimizer_dict[-1].expected_amount = min(self.capacity, self.fuel_surplus +
                                                  self.gas_for_km(optimizer_dict[-1].distance_to(self.goal, self, True)))
-        for node in self.nodes:
-            node.expected_amount = min(abs(node.expected_amount), self.gas_for_km(node.distance_to(self.goal, self, True)))
-        return [(x.datetime, x.id, x.price, x.expected_amount) for x in self.nodes]
+
+        route_nodes = [node for node in self.nodes if node.key in gas_info]
+        self._force_correction(route_nodes)
+        return [(x.datetime, x.id, x.price, x.expected_amount if x.key in gas_info else 0) for x in self.nodes]
+
+
+    def _force_correction(self, route_nodes):
+        current_gas =  0
+        if self.goal not in route_nodes:
+            route_nodes.append(self.goal)
+        idx = 0
+        for node in route_nodes[:-1]:
+            next = route_nodes[idx+1]
+
+            amount = min(node.expected_amount, self.gas_for_km(node.distance_to(self.goal, self, True)), self.capacity)
+            used = min(node.expected_amount, self.gas_for_km(node.distance_to(next, self, True)), self.capacity)
+            #print "amount, used, reserve: ", amount, used, current_gas
+            """
+            if current_gas >= amount:
+                node.expected_amount = 0
+                current_gas -= used
+            elif current_gas >= used:
+                node.expected_amount = 0
+                current_gas -= used
+            else:
+                node.expected_amount = amount - current_gas
+                current_gas = amount - used
+            """
+            if node.price < next.price or True:
+                if current_gas >= amount:
+                    node.expected_amount = 0
+                    current_gas -= used
+                else:
+                    node.expected_amount = amount-current_gas
+                    current_gas = amount - used
+                #"""
+        node = route_nodes[-1]
+        amount = min(node.expected_amount, self.gas_for_km(node.distance_to(self.goal, self, True)), self.capacity)
+        node.expected_amount = amount - current_gas
+        #for n in self.nodes:print n
+        #"""

@@ -1,3 +1,5 @@
+"""routing - gas tank strategy manager"""
+
 from .graph import Graph
 from .node import Node
 from ..dao.db import StationDAO

@@ -1,6 +1,6 @@
+"""utils.py - usefool tools"""
 # -- coding: utf-8 --
 
-"""utils.py - usefool tools"""
 import sys
 import os.path
 from .compat import printf, str2unicode

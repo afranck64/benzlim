@@ -1,3 +1,4 @@
+"""Benzlim"""
 import logging
 import os
 import sys
@@ -97,10 +98,10 @@ def main():
     elif args.command == "route":
         process_routing(config.file, config.prices_dir, config.output_file, args.gas_prices_file, config.nb_workers, args.auto_end_timestamp)
     elif args.command == "train":
-        Trainer.train()
+        Trainer.train(args.force)
     elif args.command == "test":
         test()
     elif args.command == "benchmark":
-        process_benchmark(config.prices_dir, config.nb_stations, config.nb_predictions)
+        process_benchmark(config.prices_dir, args.nb_stations, args.nb_predictions)
     elif args.command == "coverage":
         coverage()

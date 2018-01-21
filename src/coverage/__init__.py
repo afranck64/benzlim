@@ -1,3 +1,4 @@
+"""coverage - Coverage informations generation about benzlim"""
 import logging
 import os
 import glob

@@ -1,3 +1,4 @@
+"""py3 - Python3 compatibility module"""
 import pickle
 
 def printf(*args, **kwargs):

@@ -1,3 +1,4 @@
+"""prediction - The benzlim core prediction"""
 import logging
 import os
 from multiprocessing import Pool

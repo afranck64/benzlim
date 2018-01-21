@@ -53,7 +53,7 @@ def process_routing(filename, dir_prices, out_filename=None, gas_prices_file=Non
     if gas_prices_file is None:
         timestamps_x2_stations = []
         end_timestamp = None
-        if timestamps_stations and auto_end_timestamp:
+        if timestamps_stations:
             end_timestamp = timestamps_stations[0][0]
         for timestamp, station_id in timestamps_stations:
             timestamps_x2_stations.append((end_timestamp, timestamp, station_id))
@@ -74,7 +74,7 @@ def process_routing(filename, dir_prices, out_filename=None, gas_prices_file=Non
             timestamp1, station1 = row[1], row[2]
             timestamp2, station2 = row2[0], row2[1]
             if timestamp1 != timestamp2 or station1 != station2:
-                logging.error("ERROR! wrong match: timestamp/station")
+                logging.error("ERROR! incompatible prediction file")
                 err = 1
                 break
     if not err:

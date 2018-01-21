@@ -30,7 +30,7 @@
 ## Run
 
    From the `InformatiCup` directory, run the command: `python benzlim -h` to get detailed help.  
-   If your `InformatiCup2018` folder is not located in the same directory as `benzlim`, you need to provide the optional argument `--informaticup2018-dir` when referring to it.  
+   If your `InformatiCup2018` folder is not located in the same directory as `benzlim`, you need to provide the optional argument `--informaticup2018-dir` which refers to it.  
    On the first run, the data will be trained, which can take some time.
    
    Please note that the prediction_file needs to have the following format with the three parts between `;` being "Use Gasoline prices until this date", "The time for the prediction" and "Gas station ID" respectively:

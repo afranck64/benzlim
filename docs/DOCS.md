@@ -1,10 +1,11 @@
-InformatiCup 2018 - Benzlim
+[InformatiCup 2018](https://github.com/InformatiCup/InformatiCup2018) - Benzlim
 ------------------------------------------------------------
 
 **Franck Awounang Nekdem**,  **Gerald Wiese**,  **Amin Akbariazirani** und **Lea Evers**
 
+*Leibniz Universität Hannover*
 
-[TOC]
+
 
 ## Einführung
 
@@ -13,13 +14,8 @@ Benzlim ist eine auf Python basierte Software-Lösung, die Verbraucher*innen und
 
 ## Analyse
 
-* **Benzinpreisentwicklung**
+* **Benzinpreisentwicklung** ![infografik-das-auf-und-ab-der](images/infografik-das-auf-und-ab-der.jpg)
 
-* **Benzinpreisunterschiede**
-
-  Der entscheidende Faktor für den Preisunterschiede der verschiedenen Tankstellen ist die Marke.
-
- ![infografik-das-auf-und-ab-der](images/infografik-das-auf-und-ab-der.jpg)
 
 Bild 1. *Quelle:* [Frankfurt Allgemeine Zeitung][faz_preis_zyklen] 
 
@@ -27,20 +23,20 @@ Bild 1. *Quelle:* [Frankfurt Allgemeine Zeitung][faz_preis_zyklen]
 
 Bild 2. *Quelle:* [Frankfurt Allgemeine Zeitung][faz_preis_zyklen]
 
+Benzinpreise entwickeln sich periodisch täglich und jährlich, wie aus Bild 1., Bild 2. und [mtsk_dritte_jahr][mtsk_dritte_jahr] zu erfahren ist. Und erfahren bist zu ca. 100 cents Preisunterschied am Tag.
+
 ![benzin_preise_daily](images/benzin_preise_daily.jpg)
 
 Bild 3. *Quelle:* [Frankfurt Allgemeine Zeitung][adac_tankstellen_vergleich]
 
-Benzinpreisänderungen am Tag sind unabhängig von der Marke
+Benzinpreisänderungen am Tag sind unabhängig von der Marke Bild 3. [mtsk_dritte_jahr][mtsk_dritte_jahr].
 
 
-[blabla]: demo
-[hello]: https://www.focus.de/auto/praxistipps/benzinpreise-guenstig-tanken-zur-richtigen-zeit-am-richtigen-ort_id_4902163.html
 
 ## Ansatz
 
 Der ausgewählte Lösungsweg basiert darauf, dass die Benzinpreise stärker von der Marke als vom Ort abhängen.
-Um die Preise vorhersagen zu können, werden die durchschnittlichen Benzinpreise in bestimmten Zeitspannen (jährlich, monatlich, wöchentlich, täglich, stündlich, minütlich) berechnet. Die erzeugten Daten werden zu einem Extrapolator übergeben, der einen Prädiktor für die Differenz zwischen der jeweiligen Zeiteinheit und den höheren Zeiteinheiten erzeugt. Der grundlegende Prädiktor summiert die durchschnittlichen jährlichen Prädiktionen mit den monatlichen, wöchentlichen, täglichen, stündlichen und minütlichen Prädiktionen auf und erzeugt die Vorhersage.
+Um die Preise vorhersagen zu können, werden die durchschnittlichen Benzinpreise in bestimmten Zeitspannen (jährlich, monatlich, wöchentlich, täglich, stündlich, minütlich) berechnet. Die erzeugten Daten werden zu einem [Extrapolator][numpy_extrapolator] übergeben, der einen Prädiktor für die Differenz zwischen der jeweiligen Zeiteinheit und den höheren Zeiteinheiten erzeugt. Der grundlegende Prädiktor summiert die durchschnittlichen jährlichen Prädiktionen mit den monatlichen, wöchentlichen, täglichen, stündlichen und minütlichen Prädiktionen auf und erzeugt die Vorhersage.
 
 ### Training
 
@@ -52,13 +48,8 @@ Für die weitere Verarbeitung werden die Daten gereinigt und optimal gespeichert
 
 #### Klassifizierung
 
-
-
-Seien *S* die Menge aller bekannten Stationen und *S_p* die Menge aller Stationen mit Preisinformationen.
-#### Klassifizierung
-
 "S" ist die Menge aller bekannten Stationen und "S<sub>p</sub>" ist die Menge aller Stationen sowie die dazugehörigen Preisinformationen.
-Die Klassifizierung gibt für eine Station "s" in "S" die passendste Station "s<sub>p</sub>" in "S<sub>p</sub>" aus.
+Die Klassifizierung gibt für eine Station "s" in "S" die passendste Station "s<sub>p</sub>" in "S<sub>p</sub>" aus und erfolgt wie im Bild 4. beschrieben.
 
 ![classifier](images/classifier.png)
 
@@ -74,28 +65,15 @@ Pro Vorhersage wird ein Prädiktor *P* trainiert.
 * Der Prädiktor besteht aus 6 Subprädiktoren
 * Seien *yearly_avg*,  *monthly_avg*, *weekly_avg*, *daily_avg*, *hourly_avg* und *min_avg* jeweils die  jährlichen, monalichen, wochentlichen, täglichen und stündlichen durchschnittlichen Preise. 
 * Seien *monthly_rel*, *weekly_rel*, *daily_rel*, *hourly_rel* und *min_rel* die Unterschiede zwischen den jeweils monatlichen, wochentlichen, täglichen und stündlichen durchschnittlichen Preisen und den durchschnittlichen Preisen der höheren Zeiteinheit.
-* *yearly_avg* wird zu einem Extrapolator übergeben, der einen Prädiktor für den jährlichen durchschnittlichen Preis erzeugt. Jede **_rel*  Tabelle berechnet sich aus den Unterschieden zwischen dem passenden **_avg* und der Summe der Prädiktionen der höheren Zeiteinheiten.
-* Alle **_rel* werden zu einem Extrapolator übergeben, der einen Prädiktor für den Unterschied zwischen der jeweiligen Zeiteinheit und der höheren erzeugt.
-* Der grundlegende Prädiktor summiert die durchschnittlichen jährlichen Prädiktionen und relativen monatliche, wöchentliche, tägliche, stündliche und minütliche Prädiktionen.
-* Es wird der Durchschnitt der selektierten Preise für die Vorhersage berechnet. Dieser wird als prädizierter Wert benutzt, falls den tatsächlichen prädizierten Wert eine Abweichung von 20% zu ihm weist. Somit ist der prädizierte Preis *p_<sub>p1</sub>* vom Prädiktor *P_<sub>1</sub>* erzeugt.
-* Seien *monthly_rel*, *weekly_rel*, *daily_rel*, *hourly_rel* und *min_rel* Unterschied zwischen jeweils den monalichen, wochentlichen, täglichen und stündlichen durchschnittlichen Preisen und den durchschnittlichen Preisen der höheren Zeiteinheit.
-* *yearly_avg* wird zu einem Extrapolator übergeben, der ein Prädiktor für ein für den jährlichen durchschnittlichen Preis erzeugt. Jede **_rel*  Tabelle berechnet sich aus die Unterschiede zwischen dem passenden **_avg* und die Summe der Prädiktionen der höheren Zeiteinheiten.
-* Alle **_rel* werden zu einem Extrapolator übergeben, der ein Prädiktor für den Unterschied zwischen der jeweiligen Zeiteinheit und die höheren erzeugt.
-* Der grundlegende Prädiktor summiert die durchschnittlichen jährliche Prädiktion und relative monatliche, wöchentliche, tägliche, stündliche und minütliche Prädiktion.
-* Es wird der Durchschnitt der selektierten Preisen für die Vorhersage berechnet. Dieser wird als prädizierter Wert benutzt, falls den tatsächlichen prädizierten Wert eine Abweichung von 20% zu ihm weist. Somit ist der prädizierte Preis *p<sub>p1</sub>* vom Prädiktor *P<sub>1</sub>* erzeugt.
-* Seien *monthly_rel*, *weekly_rel*, *daily_rel*, *hourly_rel* und *min_rel* die Unterschiede zwischen den jeweils monatlichen, wochentlichen, täglichen und stündlichen durchschnittlichen Preisen und den durchschnittlichen Preisen der höheren Zeiteinheit.
-* *yearly_avg* wird zu einem Extrapolator übergeben, der einen Prädiktor für den jährlichen durchschnittlichen Preis erzeugt. Jede **_rel*  Tabelle berechnet sich aus den Unterschieden zwischen dem passenden **_avg* und der Summe der Prädiktionen der höheren Zeiteinheiten.
-* Alle **_rel* werden zu einem Extrapolator übergeben, der einen Prädiktor für den Unterschied zwischen der jeweiligen Zeiteinheit und der höheren erzeugt.
-* Der grundlegende Prädiktor summiert die durchschnittlichen jährlichen Prädiktionen und relativen monatliche, wöchentliche, tägliche, stündliche und minütliche Prädiktionen.
-* Es wird der Durchschnitt der selektierten Preise für die Vorhersage berechnet. Dieser wird als prädizierter Wert benutzt, falls den tatsächlichen prädizierten Wert eine Abweichung von 20% zu ihm weist. Somit ist der prädizierte Preis *p<sub>p1</sub>* vom Prädiktor *P<sub>1</sub>* erzeugt.
-* Als Zusatz wird *untrust = std(prices) / mean(selected_prices)* wo *std* die Standardabweichung ist und *avg* die Durchschnittfunktion. *untrust* gibt die Unsicherheit des Prädiktors an.
-
-* Es werden Preise ausgewählt, die in dem gleichen Stundenzeitslot sind, wie der Zeitstempel für die Vorhersage.
-* "yearly_avg", "monthly_avg", "weekly_avg", "daily_avg", "hourly_avg" und "min_avg" sind jeweils die jährlichen, monatlichen, wöchentlichen, täglichen und stündlichen durchschnittlichen Preise.
-* "monthly_rel", "weekly_rel", "daily_rel", "hourly_rel" und "min_rel" sind die Differenz zwischen jeweils den durchschnittlichen monatlichen, wöchentlichen, täglichen und stündlichen Preisen und den durchschnittlichen Preisen der höheren Zeiteinheit.
-* "yearly_avg" wird zu einem Extrapolator übergeben, der ein Prädiktor für den jährlichen Durchschnittspreis erzeugt. Jede "_rel" Tabelle wird durch die Berechnung der Differenz zwischen dem passenden "_avg" und die Summe der Prädiktionen der höheren Zeiteinheiten erzeugt.
-* Alle "_rel" werden zu einem Extrapolator übergeben, der einen Prädiktor für die Differenz zwischen der jeweiligen Zeiteinheit und den höheren Zeiteinheiten erzeugt.
+* Alle **_rel* werden zu einem [Extrapolator][numpy_extrapolator] übergeben, der einen Prädiktor für den Unterschied zwischen der jeweiligen Zeiteinheit und der höheren erzeugt.
+* *yearly_avg* wird zu einem [Extrapolator][numpy_extrapolator] übergeben, der einen Prädiktor für den jährlichen durchschnittlichen Preis erzeugt. Jede <em> *_rel</em> Tabelle berechnet sich aus den Unterschieden zwischen dem passenden **_avg* und der Summe der Prädiktionen der höheren Zeiteinheiten.
+* Alle **_rel* werden zu einem [Extrapolator][numpy_extrapolator] übergeben, der einen Prädiktor für den Unterschied zwischen der jeweiligen Zeiteinheit und der höheren erzeugt.
 * Der grundlegende Prädiktor summiert die durchschnittlichen jährlichen Prädiktionen mit den monatlichen, wöchentlichen, täglichen, stündlichen und minütlichen Prädiktionen auf und erzeugt die Vorhersage.
+* Es wird der Durchschnitt der selektierten Preise für die Vorhersage berechnet. Dieser wird als prädizierter Wert benutzt, falls den tatsächlichen prädizierten Wert eine Abweichung von 20% zu ihm weist. Somit ist der prädizierte Preis *p<sub>p1</sub>* vom Prädiktor *P<sub>1</sub>* erzeugt.
+* Als Zusatz wird *untrust = std(prices) / mean(selected_prices)* wo *std* die Standardabweichung ist und *avg* die Durchschnittfunktion berechnet. *untrust* gibt die Unsicherheit des Prädiktors an.
+
+  ​
+
 
 
 ![predictor](images/predictor.png)
@@ -104,12 +82,6 @@ Bild. 5
 
 #### Korrektor
 
-- Ein zweiter Prädiktor *P2* mit nur einem Level wird trainiert. Er präzidiert einen Preis basierend auf der Anzahl der Nanosekunden in einem Zeitsstempel. Dieser Prädiktor verfügt eben über Autokorrektur und generiert zusätzlich zu dem prädizierten Preis *p_<sub>p2</sub>* eine Unsicherheit *untrust2* , die ausgibt wie unsicher der Prädiktor ist.
-- Seien *trust1 = 1-untrust1* und *trust2 = 1 - untrust2*. Der endgültigte prädizierte Preis ist :  *p_<sub>p</sub>= (trust1*p_<sub>p1</sub> + trust2*p_<sub>p2</sub>) / (trust1 + trust2)*
-- Ein zweiter Prädiktor *P2* mit nur einem Level wird trainiert. Er präzidiert einen Preis basierend auf die Anzahl der Nanosekunden in einem Zeitsstempel. Dieser Prädiktor verfügt eben über Autokorrektur und generiert zusätzlich zu dem prädizierten Preis *p<sub>p2</sub>* eine Unsicherheit *untrust2* , die ausgibt wie  unsicher der Prädiktor ist.
-- Seien *trust1 = 1-untrust1* und *trust2 = 1 - untrust2*. Der endgültigte prädizierte Preis ist :  *p<sub>p</sub>= (trust1*p<sub>p1</sub> + trust2*p<sub>p2</sub>) / (trust1 + trust2)*
-- Ein zweiter Prädiktor *P2* mit nur einem Level wird trainiert. Er präzidiert einen Preis basierend auf die Anzahl der Nanosekunden in einem Zeitsstempel. Dieser Prädiktor verfügt eben über Autokorrektur und generiert zusätzlich zu dem prädizierten Preis *p<sub>p2</sub>* eine Unsicherheit *untrust2* , die ausgibt wie  unsicher der Prädiktor ist.
-- Seien *trust1 = 1-untrust1* und *trust2 = 1 - untrust2*. Der endgültigte prädizierte Preis ist :  *p<sub>p</sub>= (trust1*p<sub>p1</sub> + trust2*p<sub>p2</sub>) / (trust1 + trust2)*
 - Ein zweiter Prädiktor *P2* mit nur einem Level wird trainiert. Er präzidiert einen Preis basierend auf der Anzahl der Nanosekunden in einem Zeitsstempel. Dieser Prädiktor verfügt eben über Autokorrektur und generiert zusätzlich zu dem prädizierten Preis *p<sub>p2</sub>* eine Unsicherheit *untrust2* , die ausgibt wie unsicher der Prädiktor ist.
 - Seien *trust1 = 1-untrust1* und *trust2 = 1 - untrust2*. Der endgültigte prädizierte Preis ist :  *p<sub>p</sub>= (trust1*p<sub>p1</sub> + trust2*p<sub>p2</sub>) / (trust1 + trust2)*
 
@@ -141,7 +113,7 @@ Ausgewertet werden erst Prädiktionen, bei denen das Training mit tatsächlichen
 * Vorhersage ohne verfügbare Preise
 
   Wir haben 1000 Stationen mit Preisen ausgewählt und für jede Station einen Prädiktor mit einer alternativen Station vom Klassifier trainiert und 16 Mal Preise vorhergesagt. Die Preise der originalen Station wurden benutzt als Referenzwerte für die Berechnung der Fehler. Für jede Station wurde der maximale und der durchschnittliche absolute Fehler sowie der relative durchschnittliche Fehler berechnet.
-  
+
 * Vorhersagen ohne verfügbare Preise
 
   Wir haben 1000 Stationen mit verfügbaren Preisinformationen ausgewählt und für jede dieser Stationen einen Prädiktor mit einer alternativen Station vom Klassifier ausgesucht.
@@ -159,21 +131,21 @@ Ein Abschnitt aus den Ergebnissen ist in der folgenden Tabelle aufgelistet. Hier
 
 * **Vorhersagen mit verfügbaren Preisen**
 
-| station_id       | 6421  | 14554  | 6799   | 5049   | 10823  | 79     | 3607   | 12682  | 2885   |
-| ---------------- | ----- | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
-| *max(abs(e))*     | 62    | 26     | 42     | 42     | 69     | 98     | 39     | 29     | 27     |
-| *avg(abs(e))*     | 30    | 18     | 29     | 15     | 34     | 27     | 24     | 20     | 20     |
+| station_id                  | 6421  | 14554  | 6799   | 5049   | 10823  | 79     | 3607   | 12682  | 2885   |
+| --------------------------- | ----- | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
+| *max(abs(e))*               | 62    | 26     | 42     | 42     | 69     | 98     | 39     | 29     | 27     |
+| *avg(abs(e))*               | 30    | 18     | 29     | 15     | 34     | 27     | 24     | 20     | 20     |
 | *avg(abs(e)/p<sub>r</sub>)* | 0.023 | 0.0135 | 0.0202 | 0.0108 | 0.0237 | 0.0217 | 0.0191 | 0.0151 | 0.0161 |
 
 Tabelle 1.
 
 * **Vorhersagen ohne verfügbare Preise**
 
-| base_station_id  | 2953   | 7655   | 58     | 30     | 0.0209 | 14018  | 15133 | 71     | 33     |
-| :--------------- | ------ | ------ | ------ | ------ | ------ | ------ | ----- | ------ | ------ |
-| used_station_id  | 7655   | 15133  | 13424  | 4      | 15164  | 14459  | 14184 | 14716  | 14184  |
-| *max(abs(e))*     | 58     | 71     | 46     | 72     | 60     | 39     | 43    | 37     | 45     |
-| *avg(abs(e))*     | 30     | 33     | 19     | 40     | 53     | 12     | 16    | 16     | 24     |
+| base_station_id             | 2953   | 7655   | 58     | 30     | 0.0209 | 14018  | 15133 | 71     | 33     |
+| :-------------------------- | ------ | ------ | ------ | ------ | ------ | ------ | ----- | ------ | ------ |
+| used_station_id             | 7655   | 15133  | 13424  | 4      | 15164  | 14459  | 14184 | 14716  | 14184  |
+| *max(abs(e))*               | 58     | 71     | 46     | 72     | 60     | 39     | 43    | 37     | 45     |
+| *avg(abs(e))*               | 30     | 33     | 19     | 40     | 53     | 12     | 16    | 16     | 24     |
 | *avg(abs(e)/p<sub>r</sub>)* | 0.0209 | 0.0238 | 0.0144 | 0.0303 | 0.0325 | 0.0082 | 0.012 | 0.0124 | 0.0178 |
 
 
@@ -185,20 +157,29 @@ Im Durchschnitt hatten Vorhersagen mit und ohne Preise einen absoluten Fehler vo
 
 #### Bekannte Probleme
 
-* Der Speicherverbrauch ist proportional zur Anzahl der Prozessorkerne und kann beim Benchmarking mit sehr große Zahl an Stationen/Präditionen zu Problemen führen
+* Der Speicherverbrauch ist proportional zur Anzahl der Prozessorkerne und kann beim Benchmarking mit sehr große Zahl an Stationen/Präditionen zu Problemen führen.
 * Die Tankstrategie ist bei unrealistisch kleinen Tankkapazitäten teilweise fehlerhaft.
-* "Multiprocessing" führt unter Windows zu Fehlern. Dementsprechend wird für Windows nur "Monoprocessing" verwendet
+* "Multiprocessing" führt unter Windows zu Fehlern. Dementsprechend wird für Windows nur "Monoprocessing" verwendet.
 
 ## Abschluss
 
 ### Ausblick
 
-- Die Anwendung von einem erweitertem Weg zur Berechnung der Unsicherheit könnte die Ergebnisse verbessern. Er könnte zum Beispiel auf den Prädiktionsfehler von den Werten die für das Training benutzt wurden.
+- Die Anwendung von einem erweitertem Weg zur Berechnung der Unsicherheit könnte die Ergebnisse verbessern. Er könnte zum Beispiel auf den Prädiktionsfehler von für das Träning benutzte Preise basiert sein.
 - Die Tankstrategie benutzt zurzeit eine fixe Unsicherheit für alle Station/Anhaltspunkte. Es ist zu erwarten, dass sie mit genaueren Informationen bessere Schätzungen macht, nämlich die Unsicherheit jedes einzeln prädizierten Preis. 
 - Benzlim ist der Stützpunkt für viele weitere Projekte die ein effizienteres Routing für Autofahrer erbringen können. Diese wären bessere Routingalgorithmen, Reiseplanung Software usw.
 
 
-[adac_tankstellen_vergleich]: http://www.faz.net/aktuell/finanzen/meine-finanzen/geld-ausgeben/adac-tankstellenvergleich-shell-und-aral-am-teuersten-14404375.html	"Adac Tankstellengvergleich"  
-[focus_guenstig_tanken]: https://www.focus.de/auto/praxistipps/benzinpreise-guenstig-tanken-zur-richtigen-zeit-am-richtigen-ort_id_4902163.html	"Benzinpreise, guenstig tanken"  
-[faz_preis_zyklen]: http://www.faz.net/aktuell/finanzen/devisen-rohstoffe/beim-benzinpreis-bis-zu-30-cent-unterschied-am-tag-14869994.html	"Benzinpreis! Unterschiede am Tag"  
-[mtsk_dritte_jahr]: http://www.bundeskartellamt.de/SharedDocs/Publikation/DE/Berichte/Dritter_Jahresbericht_MTS-K.pdf	" Das 3. Jahr Markttransparenzstelle"  
+
+
+### Danksagung
+
+Unser Dankwort geht an das [Computational Healt Informatics (CHI)](https://www.chi.uni-hannover.de/), für das Hosting der InformatiCup an der  [Leibniz Universität Hannover](https://www.uni-hannover.de/).
+
+
+
+[adac_tankstellen_vergleich]: http://www.faz.net/aktuell/finanzen/meine-finanzen/geld-ausgeben/adac-tankstellenvergleich-shell-und-aral-am-teuersten-14404375.html	"Adac Tankstellengvergleich"
+[focus_guenstig_tanken]: https://www.focus.de/auto/praxistipps/benzinpreise-guenstig-tanken-zur-richtigen-zeit-am-richtigen-ort_id_4902163.html	"Benzinpreise, guenstig tanken"
+[faz_preis_zyklen]: http://www.faz.net/aktuell/finanzen/devisen-rohstoffe/beim-benzinpreis-bis-zu-30-cent-unterschied-am-tag-14869994.html	"Benzinpreis! Unterschiede am Tag"
+[mtsk_dritte_jahr]: http://www.bundeskartellamt.de/SharedDocs/Publikation/DE/Berichte/Dritter_Jahresbericht_MTS-K.pdf	" Das 3. Jahr Markttransparenzstelle"
+[numpy_extrapolator]: https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/numpy.polyfit.html	"Curve fitting"

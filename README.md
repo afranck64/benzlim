@@ -90,6 +90,6 @@
 
 - `python benzlim coverage`
 
-##Technical Documentation (German)
+## Technical Documentation (German)
 
 If you are interested in the technical aspects of `benzlim` and want to know more about how the fuel price predictions are done, the [technical documentation](/docs/DOCS.md) would be what you are looking for. The text is in German.

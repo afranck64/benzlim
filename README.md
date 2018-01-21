@@ -1,5 +1,7 @@
 # Benzlim
 
+>Head over to the [QUICK START](/QUICK_START.md) page if you are familiar with the basics of running and compiling python scripts. If not, just read the following instructions. Do not forget to take a look at the [FAQ](/FAQ.md) page. Your questions could have been answered before.
+
 ## Installation
 
 ### Requirements
@@ -87,3 +89,7 @@
 ### Run the coverage benchmark
 
 - `python benzlim coverage`
+
+##Technical Documentation (German)
+
+If you are interested in the technical aspects of `benzlim` and want to know more about how the fuel price predictions are done, the [technical documentation](/docs/DOCS.md) would be what you are looking for. The text is in German.

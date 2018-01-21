@@ -9,7 +9,7 @@ InformatiCup 2018 - Benzlim
 ## Einführung
 
 Die Tankstrategie ist ein wichtiger Bestandteil jeder Reise. Wann, an welcher Tankstelle und wie viel tanken zu müssen um am günstigsten und effizientesten ans Ziel zu gelangen macht auf lange Sicht einen großen finanziellen Unterschied.
-Benzlim ist eine auf Python basierte Software-Lösung, die Verbraucher und Entwickler nutzen können, um Benzinpreise vorherzusagen und die effizienteste Tankstrategie zu erstellen.
+Benzlim ist eine auf Python basierte Software-Lösung, die Verbraucher*innen und Entwickler*innen nutzen können, um Benzinpreise vorherzusagen und die effizienteste Tankstrategie zu erstellen.
 
 ## Analyse
 
@@ -170,7 +170,7 @@ Im Durchschnitt hatten Vorhersagen mit und ohne Preise einen absoluten Fehler vo
 #### Bekannte Probleme
 
 * Der Speicherverbrauch ist proportional zur Anzahl der Prozessorkerne und kann beim Benchmarking zu Problemen führen
-* Die Tankstrategie ist in ca. 5% der Fälle inkonsistent
+* Die Tankstrategie ist bei unrealistisch kleinen Tankkapazitäten teilweise fehlerhaft.
 * "Multiprocessing" führt unter Windows zu Fehlern. Dementsprechend wird für Windows nur "Monoprocessing" verwendet
 
 ## Abschluss

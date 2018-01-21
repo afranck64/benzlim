@@ -18,4 +18,5 @@ env3/
 *.aux
 *.out
 *.coverage*
+*.bak
 **__pycache__

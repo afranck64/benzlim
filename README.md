@@ -1,6 +1,6 @@
 # Benzlim
 
->Head over to the [QUICK START](/QUICK_START.md) page if you are familiar with the basics of running and compiling python scripts. If not, just read the following instructions. Do not forget to take a look at the [FAQ](/FAQ.md) page. Your questions could have been answered before.
+>Head over to the [QUICK START](/QUICK_START.md) page if you are familiar with python configuration and the command line. If not, just read the following instructions. Do not forget to take a look at the [FAQ](/FAQ.md) page. Your questions could have been answered before.
 
 ## Installation
 
@@ -11,7 +11,7 @@
     The required python packages can be installed using `pipX.Y` where X and Y are you majors python versions (`pip2.7` for `python2.7.*`):
     - `pipX.Y install -r requirements.txt` (with admin rights, for a system wide installation) or  
     - `pipX.Y install --user -r requirements.txt` (for a user only installation)
-    This will install the following packages (and their dependancies) on your system:
+    This will install the following packages (and their dependencies) on your system:
       - coverage
       - numpy >= 1.13.3
       - pandas >= 0.18
@@ -29,7 +29,7 @@
 
 ## Run
 
-   From the `InformatiCup` directory, run the command: `python benzlim -h` to get detailled help.  
+   From the `InformatiCup` directory, run the command: `python benzlim -h` to get detailed help.  
    If your `InformatiCup2018` folder is not located in the same directory as `benzlim`, you need to provide the optional argument `--informaticup2018-dir` when referring to it.  
    On the first run, the data will be trained, which can take some time.
    

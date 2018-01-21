@@ -47,10 +47,12 @@ DB_SQL_INDEX_TIMESTAMP = "CREATE INDEX IF NOT EXISTS timestamp_index on stations
 
 
 def icompare(text1, text2):
+    """insensitive case comparation of two string"""
     return (u"%s" % text1).lower() == (u"%s" % text2).lower()
 
 
 class DBManager(object):
+    """Base manager for interactions with the database"""
     sql_schemas = (DB_SQL_SCHEMA_STATIONS, )
     sql_indexes = (DB_SQL_INDEX_PRICES_AVAILABLE, DB_SQL_INDEX_TIMESTAMP,)
     conn = None
@@ -66,6 +68,7 @@ class DBManager(object):
 
     @classmethod
     def open(cls):
+        """open the database"""
         if cls.conn:
             return
         filename = Configuration.get_instance().database_file
@@ -74,6 +77,7 @@ class DBManager(object):
 
     @classmethod
     def get_conn(cls):
+        """get the connection from the database"""
         if cls.conn is None:
             cls.open()
         tmp_conn = cls.conn
@@ -82,6 +86,7 @@ class DBManager(object):
 
     @classmethod
     def close(cls):
+        """close the database"""
         if cls.conn:
             cls.conn.commit()
             cls.conn.close()
@@ -123,6 +128,7 @@ class DBManager(object):
 
     @classmethod
     def execute(cls, sql, data=None):
+        """execute the query <sql> with <data> and return the result"""
         res = tuple()
         try:
             conn = cls.get_conn()
@@ -140,6 +146,7 @@ class DBManager(object):
 
     @classmethod
     def executemany(cls, sql, data=None):
+        """execute the query <sql> which each value in data and return the result"""
         res = []
         conn = cls.get_conn()
         cursor = conn.cursor()
@@ -173,6 +180,7 @@ class DBManager(object):
             cls.get_conn().commit()
 
 class StationDAO(object):
+    """Data Access object manager for gas stations"""
     table = "stations"
     schema = DB_SQL_SCHEMA_STATIONS
     indexes = (DB_SQL_INDEX_PRICES_AVAILABLE, DB_SQL_INDEX_TIMESTAMP,)
@@ -191,10 +199,12 @@ class StationDAO(object):
 
     @classmethod
     def get_all(cls):
+        """return all stations from the database"""
         return DBManager.execute(cls.select_all_query_sql)
 
     @classmethod
     def get(cls, pk):
+        """return the station with the id <pk>"""
         pk = str(pk)
         try:
             return DBManager.execute(cls.select_query_sql, (pk,))[0]

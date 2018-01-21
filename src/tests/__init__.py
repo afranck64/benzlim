@@ -14,6 +14,7 @@ from ..prediction import (process_predictions, process_routing)
 from ..routing import Graph, Node
 
 def diff_prices(data1, data2):
+    """return min, max and average difference between data1 and data2"""
     if data1 and data2:
         lst = [abs(data1[i][-1]-data2[i][-1]) for i in range(len(data1))]
         logging.debug("Diffs: %s" % str(lst))
@@ -22,6 +23,7 @@ def diff_prices(data1, data2):
         return 0, 0, 0
 
 def get_route_files_prices():
+    """return all route file with their ground truth files"""
     src_dir = Configuration.get_instance().src_dir
     rel_path = os.path.join("tests", "data_route", "*kapa*.csv")
     rel_path = os.path.join("tests", "data_route", "**.csv")
@@ -34,6 +36,7 @@ def get_route_files_prices():
     return res
 
 def get_predict_files_prices():
+    """return all prediction files with their ground truth files"""
     src_dir = Configuration.get_instance().src_dir
     #TODO
     rel_path = os.path.join("tests", "data_predict", "*keine*.csv")
@@ -47,7 +50,11 @@ def get_predict_files_prices():
     return res
 
 
-def verify_route(route_filename, route_prices_filename, nb_runs=12):
+def verify_route(route_filename, route_prices_filename, nb_runs=20):
+    """Run a basic verification of the implement routing algorithm
+    route_filename: str, the route file
+    route_prices_filename: str, the generate prices for the route file
+    nb_runs: int, the number of runs"""
     route_prices = CSVDAO.get_route_prices_params(route_prices_filename)
     base_capacity, _ = CSVDAO.get_route_params(route_filename)
     max_tanked = -1
@@ -107,6 +114,7 @@ def verify_route(route_filename, route_prices_filename, nb_runs=12):
 
 
 def test_predict():
+    """Run the prediction tests"""
     predict_infos = get_predict_files_prices()
     config = Configuration.get_instance()
     lst_min = []
@@ -134,6 +142,7 @@ def test_predict():
         printf("No test result to show")
 
 def test_route():
+    """Run the routing tests"""
     routes_prices = get_route_files_prices()
     config = Configuration.get_instance()
     for r_file, r_pred_file in routes_prices*1:
@@ -148,6 +157,7 @@ def test_route():
 
 
 def test():
+    """Run the prediction and routing tests"""
     printf("Testing benzlim...")
-    #test_predict()
+    test_predict()
     test_route()

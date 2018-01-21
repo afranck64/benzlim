@@ -41,7 +41,7 @@ Please note that the route_file needs to have the following format:
 TANK_CAPACITY
 YYYY-MM-DD HH:MM:SS+HH;GAS_STATION_I
 ```
-Example prediction file:
+Example route file:
 ```
 3
 2015-08-01 08:00:00+02;10957

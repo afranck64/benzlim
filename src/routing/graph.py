@@ -4,6 +4,8 @@ import logging
 
 class Graph:
     def __init__(self, capacity):
+        """Graph for a graph based represention of the routes,
+        capacity: vehicle capacity"""
         self.nodes = []
         self.breakpoints = []
         self.capacity = capacity
@@ -14,18 +16,22 @@ class Graph:
         #dynamic values
         self.tolerance_km = 0
         self.tolerance_amount = 0
-        self.tolerance_price = 0.0
+        #As tolerance price we used our average error on prediction
+        self.tolerance_price = 30.0
         self.fuel_surplus = 0
         self.tolerance_quotient = 1e-31
 
     def gas_for_km(self, km):
+        """give the amount of gas needed for the given distance <km>"""
         return km * 0.056
 
     def km_for_gas(self, gas):
+        """give the amount of km one can travel for the given <gas>"""
         return gas / 0.056
 
     # find cheapest predecessor for all nodes
     def find_prevs(self):
+        """find cheapest predecessor for all nodes"""
         self.breakpoints.append(self.goal)
         for n in self.nodes:
             cheapest = n
@@ -38,6 +44,7 @@ class Graph:
 
     # find cheapest successor for all nodes
     def find_nexts(self):
+        """find cheapest successor for all nodes"""
         self.start.startpoint = True
         for n in self.nodes[0:len(self.nodes) - 1]:
             cheapest = self.nodes[self.nodes.index(n) + 1]
@@ -53,6 +60,7 @@ class Graph:
     #drive_route
     #@property
     def generate_refuel_infos(self):
+        """generate routing informations for these route"""
         x = self.start
         self.breakpoints.sort(key=lambda bps: bps.datetime)
         bp = self.breakpoints
@@ -121,6 +129,7 @@ class Graph:
 
 
     def _force_correction(self, route_nodes):
+        """apply a last check on the routing informations"""
         current_gas =  0
         if self.goal not in route_nodes:
             route_nodes.append(self.goal)

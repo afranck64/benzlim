@@ -141,5 +141,6 @@ def _benchmark_routing(route_file, route_prices_file):
 
 def benchmark_routing(nb_stations, nb_predictions, dir_prices):
     pass
+    
 def process_benchmark(dir_prices, nb_stations=1, nb_predictions=5):
     benchmark_predictions(nb_stations, nb_predictions, dir_prices)

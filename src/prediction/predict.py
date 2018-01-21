@@ -25,6 +25,7 @@ def _to_hour(hour_stamp):
     return float(hour) + float(minute)/60.0
 
 def get_time_range(timestamp):
+    """return beginning and ending range of a given timestamp"""
     time_bins = Configuration.get_instance().TIME_BINS
     timestamp = pd.Timestamp(timestamp)
     hour_ref = timestamp.hour + timestamp.minute/60.0
@@ -270,6 +271,12 @@ def get_price_predictor2(station_id, dir_prices, ts=None, time_begin=None, time_
 
 
 def predict_price(station_id, timestamp, end_train_timestamp, dir_prices, bench_ts=None):
+    """predict the price of a given station a at given time,
+    station_id: int, the id of the station
+    timestamp: str, the moment at which the price is needed
+    end_train_timestamp: str, the last date at which data should be used for training
+    dir_prices: str, path to the directory containing prices
+    bench_ts: DataFrame, data frame for testing in benchmark mode"""
     try:
         time_begin, time_end = get_time_range(timestamp)
         if bench_ts is None:

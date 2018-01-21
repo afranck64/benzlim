@@ -22,7 +22,7 @@
 - create a directory `InformatiCup` with `mkdir InformatiCup`
 - change to the `InformatiCup` directory with `cd InformatiCup`
 - clone the official InformatiCup2018 project from the link [InformatiCup2018](https://github.com/InformatiCup/InformatiCup2018 ) inside the `InformtatiCup` directory with `git clone https://github.com/InformatiCup/InformatiCup2018`
-- copy the `benzlim` inside the `InformatiCup` directory
+- copy the `benzlim` directory inside `InformatiCup`
 - Both `benzlim` and `InformatiCup2018` folders shoud be in the same directory
 
 

@@ -132,7 +132,7 @@ Ein Abschnitt aus den Ergebnissen ist in der folgenden Tabelle aufgelistet. Hier
 
 Im Durchschnitt haben Preisvorhersagen für sowohl Stationen mit Preisinformationen als auch Stationen ohne Preisinformationen eine absolute Fehlerrate von 25 bis 40.
 
-#### Bekante Probleme
+#### Bekannte Probleme
 
 * Der Speicherverbrauch ist proportionnel zur Anzahl der Prozessorkerne und kann beim Benchmarking zu Problemen führen
 * Die Tankstrategie ist in ca. 5% der Fälle Inkonsistent
